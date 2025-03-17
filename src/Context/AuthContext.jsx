@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }) => {
         if (accessToken) {
             const interval = setInterval(() => {
                 refreshTokens();
-            }, 1 * 60 * 1000); // Обновляем токены каждые 5 минут
+            }, 10 * 60 * 1000); // Обновляем токены каждые 5 минут
 
             return () => clearInterval(interval);
         }
