@@ -76,13 +76,19 @@ export const AuthProvider = ({ children }) => {
                 credentials: 'include',
             });
 
+            console.log('Refresh token response status:', response.status); // Логируем статус
+            console.log('Refresh token response headers:', [...response.headers.entries()]); // Логируем заголовки
+
             if (!response.ok) {
+                const errorData = await response.json(); // Логируем тело ошибки
+                console.error('Refresh token error data:', errorData);
                 throw new Error('Token refresh failed');
             }
 
             const data = await response.json();
-            setAccessToken(data.AccessToken);
+            console.log('Refresh token success data:', data); // Логируем успешный ответ
 
+            setAccessToken(data.AccessToken);
             localStorage.setItem('accessToken', data.AccessToken);
         } catch (error) {
             console.error('Token refresh error:', error);
