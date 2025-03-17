@@ -90,9 +90,9 @@ export const AuthProvider = ({ children }) => {
             setUser(data);
             console.log(user);
 
-            setAccessToken(data.AccessToken);
-            localStorage.setItem('accessToken', data.AccessToken);
-            console.log(data.AccessToken);
+            setAccessToken(data.accessToken);
+            localStorage.setItem('accessToken', data.accessToken);
+            console.log(data.accessToken);
 
         } catch (error) {
             console.error('Token refresh error:', error);
