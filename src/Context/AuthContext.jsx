@@ -90,6 +90,8 @@ export const AuthProvider = ({ children }) => {
 
             setAccessToken(data.AccessToken);
             localStorage.setItem('accessToken', data.AccessToken);
+            console.log(data.AccessToken);
+
         } catch (error) {
             console.error('Token refresh error:', error);
             logout();
