@@ -3,9 +3,6 @@ import { useAuth } from '../Context/AuthContext'
 
 function ProfilePage() {
     const { refreshTokens } = useAuth();
-    useEffect(() => {
-        handleSubmit();
-    })
 
     const handleSubmit = async () => {
         try {
@@ -16,7 +13,8 @@ function ProfilePage() {
     };
     return (
         <div>
-            <button onClick={() => refreshTokens()} >refresh</button>
+            <>Тут будет информация о профиле</>
+            <button onClick={handleSubmit} >refresh</button>
         </div>
     )
 }
