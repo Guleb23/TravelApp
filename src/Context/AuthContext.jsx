@@ -87,6 +87,8 @@ export const AuthProvider = ({ children }) => {
 
             const data = await response.json();
             console.log('Refresh token success data:', data);
+            setUser(data);
+            console.log(user);
 
             setAccessToken(data.AccessToken);
             localStorage.setItem('accessToken', data.AccessToken);
