@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const INITIAL_URL = "https://localhost:7110/";
+    const INITIAL_URL = "https://guleb23-apifortravel-a985.twc1.net/";
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken') || null);
     const [isLoading, setIsLoading] = useState(true); // Для отслеживания загрузки
