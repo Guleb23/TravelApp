@@ -76,23 +76,23 @@ export const AuthProvider = ({ children }) => {
                 credentials: 'include',
             });
 
-            console.log('Refresh token response status:', response.status); // Логируем статус
-            console.log('Refresh token response headers:', [...response.headers.entries()]); // Логируем заголовки
+            console.log('Refresh token response status:', response.status);
+            console.log('Refresh token response headers:', [...response.headers.entries()]);
 
             if (!response.ok) {
-                const errorData = await response.json(); // Логируем тело ошибки
+                const errorData = await response.json();
                 console.error('Refresh token error data:', errorData);
                 throw new Error('Token refresh failed');
             }
 
             const data = await response.json();
-            console.log('Refresh token success data:', data); // Логируем успешный ответ
+            console.log('Refresh token success data:', data);
 
             setAccessToken(data.AccessToken);
             localStorage.setItem('accessToken', data.AccessToken);
         } catch (error) {
             console.error('Token refresh error:', error);
-            logout(); // Выход, если обновление токенов не удалось
+            logout();
         }
     };
 
@@ -135,7 +135,7 @@ export const AuthProvider = ({ children }) => {
         if (accessToken) {
             const interval = setInterval(() => {
                 refreshTokens();
-            }, 10 * 60 * 1000); // Обновляем токены каждые 5 минут
+            }, 1 * 60 * 1000); // Обновляем токены каждые 5 минут
 
             return () => clearInterval(interval);
         }
