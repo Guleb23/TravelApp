@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const INITIAL_URL = "https://guleb23-apifortravel-a985.twc1.net/";
+    const INITIAL_URL = "https://localhost:7110/";
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken') || null);
     const [isLoading, setIsLoading] = useState(true); // Для отслеживания загрузки
@@ -24,7 +24,13 @@ export const AuthProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            setUser({ email });
+            setUser({
+                email: data.Email,
+                username: data.Username,
+                id: data.Id
+            });
+            console.log(data);
+
             setAccessToken(data.AccessToken);
 
 
@@ -36,12 +42,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Функция для регистрации
-    const register = async (email, password) => {
+    const register = async (email, password, username) => {
         try {
             const response = await fetch(`${INITIAL_URL}api/register`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                headers: { 'Content-Type': 'application/json', },
+                body: JSON.stringify({ email, password, username }),
+                credentials: 'include'
             });
 
             if (!response.ok) {
@@ -49,7 +56,11 @@ export const AuthProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            setUser({ email });
+            setUser({
+                email: data.Email,
+                username: data.Username,
+                id: data.Id
+            });
             setAccessToken(data.AccessToken);
 
 
@@ -86,8 +97,13 @@ export const AuthProvider = ({ children }) => {
             }
 
             const data = await response.json();
+
             console.log('Refresh token success data:', data);
-            setUser(data);
+            setUser({
+                email: data.email,
+                username: data.username,
+                id: data.Id
+            });
             console.log(user);
 
             setAccessToken(data.accessToken);
@@ -120,7 +136,11 @@ export const AuthProvider = ({ children }) => {
                     } else {
                         // Если access-токен валиден, устанавливаем пользователя
                         const userData = await response.json();
-                        setUser(userData);
+                        setUser({
+                            email: userData.Email,
+                            username: userData.Username,
+                            id: userData.Id
+                        });
 
                     }
                 } catch (error) {

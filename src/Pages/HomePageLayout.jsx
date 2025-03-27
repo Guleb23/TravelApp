@@ -8,11 +8,14 @@ const HomePageLayout = () => {
 
 
     return (
-        <section className='w-screen h-screen overflow-x-hidden '>
-            <div className='h-full px-3 md:px-5 pt-12 lg:px-40 '>
+        <section className='w-screen h-screen overflow-x-hidden  '>
+            <div className='h-full w-full flex overflow-y-hidden'>
 
                 <NavBar />
-                <Outlet />
+                <div className='flex-[1_1_75%] overflow-y-auto bg-[#f9fafb]'>
+                    <Outlet />
+                </div>
+
 
             </div>
         </section>

@@ -8,6 +8,7 @@ import HomePageLayout from './Pages/HomePageLayout'
 import PrivateRoute from './Helpers/PrivateRoute'
 import NewsPage from './Pages/NewsPage'
 import ProfilePage from './Pages/ProfilePage'
+import NewTravel from './Pages/NewTravel'
 
 
 function App() {
@@ -21,8 +22,9 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route element={<HomePageLayout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/news" element={<NewsPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/news" element={<ProfilePage />} />
+            <Route path="/profile/:id" element={<NewTravel />} />
+            <Route path="/profile" element={<NewTravel />} />
           </Route>
         </Route>
       </Routes>

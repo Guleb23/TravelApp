@@ -1,0 +1,14 @@
+/* Calendar.css */
+.selected-day {
+    background-color: #3b82f6;
+    /* Синий цвет */
+    color: white;
+    border-radius: 50%;
+    /* Круглая форма */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin: 0 auto;
+}
