@@ -1,24 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import FullCalendar from '@fullcalendar/react'; // Основной компонент FullCalendar
-import dayGridPlugin from '@fullcalendar/daygrid'; // Плагин для отображения месяца
-import interactionPlugin from '@fullcalendar/interaction'; // Плагин для взаимодействия (нажатия, перетаскивания)
-import '@fullcalendar/common/main.css'; // Основные стили
-import CustomBtn from '../Components/CustomBtn'
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import '@fullcalendar/common/main.css';
+import CustomBtn from '../Components/CustomBtn';
 import { useNavigate } from 'react-router';
 import { FaCalendarDays } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import { FaShare } from "react-icons/fa";
-
-
-//const clickedDate = arg.date.toLocaleDateString().split('T')[0];
-
 import axios from 'axios';
 import { useAuth } from '../Context/AuthContext';
 import ShareModal from '../Components/ShareModal';
 
 const HomePage = () => {
-
-    const { user } = useAuth();
+    const { user, refreshTokens } = useAuth();
     const [selectedDate, setSelectedDate] = useState(null);
     const [travels, setTravels] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -27,21 +22,21 @@ const HomePage = () => {
     const [showShareModal, setShowShareModal] = useState(false);
     const [selectedTravelId, setSelectedTravelId] = useState(null);
 
-    // Функция для открытия модального окна
     const handleShareClick = (travelId) => {
         setSelectedTravelId(travelId);
         setShowShareModal(true);
     };
 
-    // Функция для отправки тегов на сервер
     const handleShareTravel = async (travelId, tags) => {
         try {
             await axios.put(`https://guleb23-apifortravel-a985.twc1.net/api/travels/${travelId}/share`, { tags });
             alert('Путешествие успешно опубликовано!');
 
-            // Обновляем список путешествий
-            const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${user.id}`);
-            setTravels(response.data);
+            // Обновляем список путешествий только если user.id доступен
+            if (user?.id) {
+                const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${user.id}`);
+                setTravels(response.data);
+            }
 
             setShowShareModal(false);
         } catch (error) {
@@ -49,7 +44,6 @@ const HomePage = () => {
             alert('Произошла ошибка при публикации');
         }
     };
-
 
     const formatDate = (date) => {
         return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
@@ -59,8 +53,15 @@ const HomePage = () => {
 
     // Загрузка данных о путешествиях
     useEffect(() => {
+
         const fetchTravels = async () => {
             try {
+                // Проверяем, что user и user.id доступны
+                if (!user?.id) {
+                    setLoading(false);
+                    return;
+                }
+
                 const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${user.id}`);
                 setTravels(response.data);
                 setLoading(false);
@@ -72,7 +73,7 @@ const HomePage = () => {
         };
 
         fetchTravels();
-    }, []);
+    }, [user]); // Добавляем user в зависимости useEffect
 
     // Преобразование данных для FullCalendar
     const calendarEvents = travels.map(travel => ({
@@ -84,26 +85,21 @@ const HomePage = () => {
         }
     }));
 
-
-
     const handleDateClick = (arg) => {
         const clickedDate = formatDate(new Date(arg.date));
         setSelectedDate(clickedDate);
     };
 
-    const handleDelete = (id) => {
-        axios.delete(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${id}`)
-            .then(() => {
-                alert("Успешное удаление");
-                // Обновляем состояние, удаляя удаленное путешествие
-                setTravels(prevTravels => prevTravels.filter(travel => travel.id !== id));
-            })
-            .catch((e) => {
-                console.log(e);
-                alert("Ошибка при удалении");
-            });
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${id}`);
+            alert("Успешное удаление");
+            setTravels(prevTravels => prevTravels.filter(travel => travel.id !== id));
+        } catch (e) {
+            console.log(e);
+            alert("Ошибка при удалении");
+        }
     };
-
 
     const handleBtnClick = () => {
         if (selectedDate) {
@@ -130,10 +126,10 @@ const HomePage = () => {
         return baseClasses;
     };
 
-    // Функция для отображения предстоящих поездок
     const renderUpcomingTravels = () => {
         if (loading) return <p className="p-4">Загрузка...</p>;
         if (error) return <p className="p-4 text-red-500">Ошибка: {error}</p>;
+        if (!user?.id) return <p className="p-4">Пользователь не авторизован</p>;
         if (travels.length === 0) return <p className="p-4">Нет предстоящих поездок</p>;
 
         return (
@@ -145,8 +141,8 @@ const HomePage = () => {
                         <div
                             key={travel.id}
                             className="mb-4 p-3 border-b border-gray-200 hover:bg-gray-50 cursor-pointer flex items-center"
-
-                        >   <div className='flex-1' onClick={() => navigate(`/profile/${travel.id}`)}>
+                        >
+                            <div className='flex-1' onClick={() => navigate(`/profile/${travel.id}`)}>
                                 <h3 className="font-medium text-[#94a56f]">{travel.title}</h3>
                                 <p className="text-sm text-gray-600">
                                     {new Date(formattedDate).toLocaleDateString()}
@@ -156,22 +152,29 @@ const HomePage = () => {
                                 </p>
                             </div>
                             <div className='w-16 flex flex-col gap-2'>
-                                <CustomBtn customStyles={`  !bg-red-500`} icon={<MdDelete size={20} color='white' />} onClick={() => handleDelete(travel.id)} />
+                                <CustomBtn
+                                    customStyles={`!bg-red-500`}
+                                    icon={<MdDelete size={20} color='white' />}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(travel.id);
+                                    }}
+                                />
                                 <CustomBtn
                                     customStyles={`!bg-[#94a56f]`}
-
                                     icon={<FaShare size={20} color='white' />}
-                                    onClick={() => handleShareClick(travel.id)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleShareClick(travel.id);
+                                    }}
                                 />
                             </div>
-
                         </div>
                     );
                 })}
             </div>
         );
     };
-
 
     return (
         <div className="p-4 py-7 overflow-y-auto">
@@ -232,7 +235,6 @@ const HomePage = () => {
     );
 };
 
-// Кастомное отображение событий в календаре
 function renderEventContent(eventInfo) {
     return (
         <div className="fc-event-main-frame">

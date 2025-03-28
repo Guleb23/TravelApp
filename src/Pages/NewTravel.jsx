@@ -2,14 +2,15 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FaSave } from "react-icons/fa";
 import CustomInput from '../Components/CustomInput';
 import debounce from 'lodash.debounce';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
-import L from 'leaflet'; // Заменяем 2GIS на Leaflet
+import { useLocation, useNavigate, useParams } from 'react-router';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Modal from '../Components/Modal';
 import { useAuth } from '../Context/AuthContext';
 import axios from 'axios';
-import openingHours from 'opening_hours';
+
 import { BsCheckCircle, BsExclamationDiamond } from 'react-icons/bs';
+import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 
 const POINT_TYPES = {
     attraction: {
@@ -44,7 +45,7 @@ const HomePage = () => {
     const { user } = useAuth();
 
     const [travel, setTravel] = useState({});
-
+    const [originalPoints, setOriginalPoints] = useState([]); // Добавляем состояние для исходного массива
     const [selectedPointIndex, setSelectedPointIndex] = useState(null);//Для загрузки фото
     const [points, setPoints] = useState([]);//Для точек
     const [inputValue, setInputValue] = useState('');//Для подсказок
@@ -108,57 +109,103 @@ const HomePage = () => {
 
     const handleUpdate = useCallback(async () => {
         try {
-            // Подготовка данных для отправки
+            // Валидация данных
+            if (!title || !dateState) {
+                throw new Error('Название и дата обязательны для заполнения');
+            }
+
+            if (points.length < 2) {
+                throw new Error('Должно быть минимум 2 точки маршрута');
+            }
+
+            // Подготовка данных
             const payload = {
                 title,
                 date: dateState,
-                points: points.map(point => ({
-                    id: point.id || 0, // 0 для новых точек
-                    name: point.name,
-                    address: point.address,
-                    type: point.type,
-                    departureTime: point.departureTime,
-                    coordinates: {
-                        lat: point.coordinates.lat,
-                        lon: point.coordinates.lon
-                    },
-                    photos: point.photos ? point.photos.map(photo => ({
-                        id: photo.id || 0, // 0 для новых фото
-                        fileName: photo.file?.name || photo.filePath?.split('/').pop(),
-                        base64Content: photo.Base64Content,
-                        filePath: photo.filePath
-                    })) : []
-                }))
+                points: points.map((point, index) => {
+                    if (!point.name || !point.address || !point.coordinates) {
+                        throw new Error(`Точка #${index + 1} содержит неполные данные`);
+                    }
+
+                    return {
+                        id: point.id || 0,
+                        name: point.name,
+                        address: point.address,
+                        type: point.type || 'attraction',
+                        departureTime: index === 0 ? point.departureTime || '08:00' : undefined,
+                        coordinates: point.coordinates,
+                        photos: point.photos?.map(photo => ({
+                            id: photo.id || 0,
+                            fileName: photo.file?.name || photo.filePath?.split('/').pop() || `photo_${Date.now()}`,
+                            base64Content: photo.Base64Content,
+                            filePath: photo.filePath,
+                        })) || [],
+                    };
+                }),
             };
 
-            console.log('Updating travel with payload:', payload);
-
-            // Отправка PATCH запроса
+            // Отправка запроса
             const response = await axios.patch(
                 `https://guleb23-apifortravel-a985.twc1.net/api/travels/${id}`,
                 payload,
                 {
                     headers: {
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    timeout: 10000
                 }
             );
 
+            // Обработка успешного ответа
             if (response.status === 200) {
+                const updatedTravel = response.data;
+
+                // Обновляем точки с сервера для синхронизации
+                const pointsResponse = await axios.get(
+                    `https://guleb23-apifortravel-a985.twc1.net/api/points/${id}`
+                );
+
+                const updatedPoints = await processPoints(pointsResponse.data);
+
+                // Обновление состояния
+                setTitle(updatedTravel.title);
+                setDateState(formatDate(new Date(updatedTravel.date)));
+                setPoints(updatedPoints);
+
                 alert('Путешествие успешно обновлено!');
-                // Обновляем состояние, если нужно
-                setTitle(response.data.title);
-                setDateState(formatDate(new Date(response.data.date)));
-                setPoints(response.data.points);
-                navigator('/news')
+                navigator('/news', { state: { refresh: true } });
             } else {
-                throw new Error('Ошибка при обновлении');
+                throw new Error(`Ошибка сервера: ${response.statusText}`);
             }
-        } catch (err) {
-            console.error('Ошибка при обновлении:', err);
-            alert(`Не удалось обновить: ${err.message}`);
+        } catch (error) {
+            console.error('Update error:', error);
+            alert(`Ошибка при обновлении: ${error.response?.data?.message ||
+                error.message ||
+                'Неизвестная ошибка'
+                }`);
         }
-    }, [id, title, dateState, points]);
+    }, [id, title, dateState, points, navigator]);
+    const processPoints = async (pointsData) => {
+        return await Promise.all(
+            pointsData.map(async point => ({
+                ...point,
+                photos: point.photos ? await processPhotos(point.photos) : []
+            }))
+        );
+    };
+
+    const processPhotos = async (photos) => {
+        return Promise.all(photos.map(async photo => {
+            const imageUrl = `https://guleb23-apifortravel-a985.twc1.net/${photo.filePath.replace(/\\/g, '/')
+                }`;
+            return {
+                ...photo,
+                preview: imageUrl,
+                Base64Content: null
+            };
+        }));
+    };
 
     // Загрузка данных о путешествиях
     useEffect(() => {
@@ -169,10 +216,6 @@ const HomePage = () => {
                     setTitle(response.data[0].title);
                     const formattedDate = formatDate(new Date(response.data[0].date));
                     setDateState(formattedDate);
-
-
-
-
 
                 } catch (err) {
                     console.log(err);
@@ -208,6 +251,7 @@ const HomePage = () => {
                     setPoints(pointsWithPhotos);
                     const pointsWithRoutes = await recalculateAllRoutes(pointsWithPhotos);
                     setPoints(pointsWithRoutes);
+                    setOriginalPoints([...pointsWithPhotos]); // Сохраняем исходный массив
 
                 } catch (err) {
                     console.error('Ошибка при загрузке:', err);
@@ -233,7 +277,61 @@ const HomePage = () => {
 
     //////////////////////////////////////////////Вспомогательное
 
+    // Обновленные функции перемещения
+    const movePointUp = async (index) => {
+        if (index <= 1) {
+            if (index === 0) alert("Начальная точка маршрута не может быть перемещена");
+            if (index === 1) alert("Нельзя перемещать точку перед начальной");
+            return;
+        }
 
+        clearAllRoutes();
+
+        const newPoints = [...points];
+        [newPoints[index], newPoints[index - 1]] = [newPoints[index - 1], newPoints[index]];
+
+        setPoints(newPoints);
+        const updatedPoints = await recalculateRoutes(newPoints);
+        setPoints(updatedPoints);
+    };
+
+    const movePointDown = async (index) => {
+        if (index === 0) {
+            alert("Начальная точка маршрута не может быть перемещена");
+            return;
+        }
+        if (index >= points.length - 1) return;
+
+        clearAllRoutes();
+
+        const newPoints = [...points];
+        [newPoints[index], newPoints[index + 1]] = [newPoints[index + 1], newPoints[index]];
+
+        setPoints(newPoints);
+        const updatedPoints = await recalculateRoutes(newPoints);
+        setPoints(updatedPoints);
+    };
+    const clearAllRoutes = () => {
+        // Удаляем все полилинии с карты
+        if (polylinesRef.current) {
+            polylinesRef.current.forEach(polyline => {
+                if (polyline && mapRef.current) {
+                    mapRef.current.removeLayer(polyline);
+                }
+            });
+            polylinesRef.current = [];
+        }
+
+        // Также очищаем глобальный массив, если он используется
+        if (window.routePolylines) {
+            window.routePolylines.forEach(polyline => {
+                if (polyline && mapRef.current) {
+                    mapRef.current.removeLayer(polyline);
+                }
+            });
+            window.routePolylines = [];
+        }
+    };
     const handleSave = useCallback(async () => {
         try {
             const payload = {
@@ -244,7 +342,7 @@ const HomePage = () => {
             console.log(payload);
             axios.post(`https://guleb23-apifortravel-a985.twc1.net/api/users/${user.id}/travels`, payload);
             alert('Маршрут сохранен!');
-
+            navigator('/news')
 
         } catch (err) {
             console.error('Ошибка:', err);
@@ -477,31 +575,46 @@ const HomePage = () => {
 
     ///////////////////////////////////////////////////////////////Работа с точками/////////////////////////////////////
     const recalculateRoutes = async (pointsArray) => {
+        if (!mapRef.current) return pointsArray;
 
+        // Очищаем старые маршруты
+        clearAllRoutes();
 
         const updatedPoints = [...pointsArray];
 
-        if (updatedPoints.length > 1) {
-            window.routePolylines.forEach(polyline => polyline.destroy());
-            window.routePolylines = [];
+        if (updatedPoints.length < 2) return updatedPoints;
 
-            for (let i = 0; i < updatedPoints.length - 1; i++) {
-                const startPoint = updatedPoints[i];
-                const endPoint = updatedPoints[i + 1];
+        // Убедимся, что у первой точки есть время отправления
+        if (!updatedPoints[0].departureTime) {
+            updatedPoints[0].departureTime = "08:00";
+        }
 
-                let departureTime = i === 0 ? startPoint.departureTime : startPoint.arrivalTime;
+        // Пересчитываем все маршруты последовательно
+        for (let i = 0; i < updatedPoints.length - 1; i++) {
+            const startPoint = updatedPoints[i];
+            const endPoint = updatedPoints[i + 1];
 
-                const result = await calculateArrivalTime(
+            const departureTime = i === 0
+                ? startPoint.departureTime
+                : startPoint.arrivalTime;
+
+            const result = await calculateArrivalTime(
+                startPoint,
+                endPoint,
+                departureTime
+            );
+
+            if (result) {
+                updatedPoints[i + 1].arrivalTime = result.arrivalTime;
+                updatedPoints[i + 1].duration = result.duration;
+
+                // Рисуем новый маршрут
+                drawRoute(
+                    result.routeCoordinates,
                     startPoint,
                     endPoint,
-                    departureTime
+                    result.duration
                 );
-
-                if (result) {
-                    endPoint.arrivalTime = result.arrivalTime;
-                    endPoint.duration = result.duration;
-                    drawRoute(result.routeCoordinates, startPoint, endPoint, result.duration);
-                }
             }
         }
 
@@ -999,7 +1112,7 @@ const HomePage = () => {
                             <button onClick={() => setIsAdding(true)} className='text-[#94a56f]'>+ Добавить точку</button>
                         </div>
                         <div className='w-full rounded-2xl bg-gray-100 p-4'>
-                            {/* Поле ввода для новой точки */}
+
                             {isAdding && (
                                 <div className='relative mb-3'>
                                     <input
@@ -1046,8 +1159,36 @@ const HomePage = () => {
 
                             {/* Список добавленных точек */}
                             {points.map((point, index) => (
-                                <div key={index} className='mb-3 bg-white rounded-xl p-6'>
+                                <div key={index} className='mb-3 bg-white rounded-xl p-6 relative'>
 
+                                    {/* Кнопки перемещения - рендерим только для точек, которые можно перемещать */}
+                                    {index !== 0 && (
+                                        <div className="absolute top-3 right-3 flex flex-col space-y-2">
+                                            {/* Кнопка вверх - скрываем для точки сразу после начальной */}
+                                            <button
+                                                onClick={() => movePointUp(index)}
+                                                disabled={index === 1} // Запрещаем перемещать перед первой точкой
+                                                className={`p-1 rounded-full ${index === 1 ?
+                                                    'text-gray-300 cursor-default' :
+                                                    'text-gray-500 hover:text-white hover:bg-[#94a56f] transition-colors'}`}
+                                                title={index === 1 ? "Нельзя переместить перед начальную точку" : "Переместить вверх"}
+                                            >
+                                                <FaArrowUp scale={20} />
+                                            </button>
+
+                                            {/* Кнопка вниз - скрываем для последней точки */}
+                                            <button
+                                                onClick={() => movePointDown(index)}
+                                                disabled={index === points.length - 1}
+                                                className={`p-1 rounded-full ${index === points.length - 1 ?
+                                                    'text-gray-300 cursor-default' :
+                                                    'text-gray-500 hover:text-white hover:bg-[#94a56f] transition-colors'}`}
+                                                title={index === points.length - 1 ? "Это последняя точка" : "Переместить вниз"}
+                                            >
+                                                <FaArrowDown scale={20} />
+                                            </button>
+                                        </div>
+                                    )}
 
                                     <div className='flex flex-col gap-4'>
 
