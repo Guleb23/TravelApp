@@ -36,11 +36,11 @@ const HomePage = () => {
     // Функция для отправки тегов на сервер
     const handleShareTravel = async (travelId, tags) => {
         try {
-            await axios.put(`https://guleb23-webapplication2-c213.twc1.net/api/travels/${travelId}/share`, { tags });
+            await axios.put(`https://guleb23-apifortravel-a985.twc1.net/api/travels/${travelId}/share`, { tags });
             alert('Путешествие успешно опубликовано!');
 
             // Обновляем список путешествий
-            const response = await axios.get(`https://guleb23-webapplication2-c213.twc1.net/api/routes/${user.id}`);
+            const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${user.id}`);
             setTravels(response.data);
 
             setShowShareModal(false);
@@ -61,7 +61,7 @@ const HomePage = () => {
     useEffect(() => {
         const fetchTravels = async () => {
             try {
-                const response = await axios.get(`https://guleb23-webapplication2-c213.twc1.net/api/routes/${user.id}`);
+                const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${user.id}`);
                 setTravels(response.data);
                 setLoading(false);
             } catch (err) {
@@ -92,7 +92,7 @@ const HomePage = () => {
     };
 
     const handleDelete = (id) => {
-        axios.delete(`https://guleb23-webapplication2-c213.twc1.net/api/routes/${id}`)
+        axios.delete(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${id}`)
             .then(() => {
                 alert("Успешное удаление");
                 // Обновляем состояние, удаляя удаленное путешествие

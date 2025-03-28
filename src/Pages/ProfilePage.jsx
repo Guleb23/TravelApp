@@ -23,7 +23,7 @@ const FeedPage = () => {
                     tag: selectedTag
                 };
 
-                const response = await axios.get('https://guleb23-webapplication2-c213.twc1.net/api/feed', { params });
+                const response = await axios.get('https://guleb23-apifortravel-a985.twc1.net/api/feed', { params });
                 setFeed(response.data.items);
                 setTotalPages(response.data.totalPages);
                 setLoading(false);
@@ -35,7 +35,7 @@ const FeedPage = () => {
 
         const fetchTags = async () => {
             try {
-                const response = await axios.get('https://guleb23-webapplication2-c213.twc1.net/api/tags');
+                const response = await axios.get('https://guleb23-apifortravel-a985.twc1.net/api/tags');
                 setAllTags(response.data);
             } catch (error) {
                 console.error('Error fetching tags:', error);
@@ -60,14 +60,14 @@ const FeedPage = () => {
     const handleLike = async (postId) => {
         try {
             if (likedPosts.has(postId)) {
-                await axios.delete(`https://guleb23-webapplication2-c213.twc1.net/api/posts/${postId}/like`);
+                await axios.delete(`https://guleb23-apifortravel-a985.twc1.net/api/posts/${postId}/like`);
                 setLikedPosts(prev => {
                     const newSet = new Set(prev);
                     newSet.delete(postId);
                     return newSet;
                 });
             } else {
-                await axios.post(`https://guleb23-webapplication2-c213.twc1.net/api/posts/${postId}/like`);
+                await axios.post(`https://guleb23-apifortravel-a985.twc1.net/api/posts/${postId}/like`);
                 setLikedPosts(prev => new Set(prev).add(postId));
             }
         } catch (error) {
@@ -195,7 +195,7 @@ const FeedPage = () => {
                                                     {point.photos.slice(0, 3).map(photo => (
                                                         <img
                                                             key={photo.id}
-                                                            src={`https://guleb23-webapplication2-c213.twc1.net/${photo.filePath}`}
+                                                            src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
                                                             alt={point.name}
                                                             className="h-24 rounded-md object-cover shadow-sm"
                                                         />
