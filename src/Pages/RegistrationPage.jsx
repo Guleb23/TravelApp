@@ -44,16 +44,16 @@ const RegistrationPage = () => {
                     </div>
                 </div>
                 <div className=' flex-1 p-6 flex flex-col gap-6'>
-                    <CustomInput handleChange={setEmail} label={`Email`} placeholder={`вы@example.com`} />
+                    <CustomInput value={email} handleChange={(newValue) => setEmail(newValue)} label={`Email`} placeholder={`вы@example.com`} />
 
 
-                    <CustomInput handleChange={setUsername} label={`Имя пользователя`} placeholder={`myusername`} />
+                    <CustomInput value={username} handleChange={(newValue) => setUsername(newValue)} label={`Имя пользователя`} placeholder={`myusername`} />
 
 
-                    <CustomInput handleChange={setPassword} type={`password`} label={`Пароль`} placeholder={`Пароль`} />
+                    <CustomInput value={password} handleChange={(newValue) => setPassword(newValue)} type={`password`} label={`Пароль`} placeholder={`Пароль`} />
 
 
-                    <CustomInput handleChange={setPsw} type={`password`} label={`Подтвердите пароль`} placeholder={`Подтвердите пароль`} />
+                    <CustomInput value={psw} handleChange={(newValue) => setPsw(newValue)} type={`password`} label={`Подтвердите пароль`} placeholder={`Подтвердите пароль`} />
 
                     <CustomBtn onClick={handleSubmit} text={`Создать аккаунт`} customStyles={`bg-[#94a56f] font-main`} />
                     <div className='text-black font-main text-center'>
