@@ -135,7 +135,7 @@ const HomePage = () => {
 
             // Отправка PATCH запроса
             const response = await axios.patch(
-                `https://localhost:7110/api/travels/${id}`,
+                `https://guleb23-webapplication2-c213.twc1.net/api/travels/${id}`,
                 payload,
                 {
                     headers: {
@@ -165,7 +165,7 @@ const HomePage = () => {
         if (id) {
             const fetchData = async () => {
                 try {
-                    const response = await axios.get(`https://localhost:7110/api/travel/${id}`);
+                    const response = await axios.get(`https://guleb23-webapplication2-c213.twc1.net/api/travel/${id}`);
                     setTitle(response.data[0].title);
                     const formattedDate = formatDate(new Date(response.data[0].date));
                     setDateState(formattedDate);
@@ -183,7 +183,7 @@ const HomePage = () => {
             fetchData();
             const fetchTravels = async () => {
                 try {
-                    const response = await axios.get(`https://localhost:7110/api/points/${id}`);
+                    const response = await axios.get(`https://guleb23-webapplication2-c213.twc1.net/api/points/${id}`);
                     console.log(response.data);
 
                     // Преобразуем пути к фото в полные URL
@@ -193,7 +193,7 @@ const HomePage = () => {
                             photos: point.photos
                                 ? await Promise.all(point.photos.map(async photo => {
                                     // Формируем полный URL до изображения
-                                    const imageUrl = `https://localhost:7110/${photo.filePath.replace(/\\/g, '/')}`;
+                                    const imageUrl = `https://guleb23-webapplication2-c213.twc1.net/${photo.filePath.replace(/\\/g, '/')}`;
                                     return {
                                         id: photo.id,
                                         filePath: photo.filePath,
@@ -242,7 +242,7 @@ const HomePage = () => {
                 points: points.filter(p => p.name.trim() !== ""), // Фильтруем пустые точки
             };
             console.log(payload);
-            axios.post(`https://localhost:7110/api/users/${user.id}/travels`, payload);
+            axios.post(`https://guleb23-webapplication2-c213.twc1.net/api/users/${user.id}/travels`, payload);
             alert('Маршрут сохранен!');
 
 
