@@ -21,8 +21,8 @@ function App() {
 
         <Route element={<PrivateRoute />}>
           <Route element={<HomePageLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/news" element={<ProfilePage />} />
+            <Route path="/" element={<ProfilePage />} />
+            <Route path="/news" element={<HomePage />} />
             <Route path="/profile/:id" element={<NewTravel />} />
             <Route path="/profile" element={<NewTravel />} />
           </Route>

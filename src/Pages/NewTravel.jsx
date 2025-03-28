@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FaSave } from "react-icons/fa";
 import CustomInput from '../Components/CustomInput';
 import debounce from 'lodash.debounce';
-import { useLocation, useParams, useSearchParams } from 'react-router';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
 import L from 'leaflet'; // Заменяем 2GIS на Leaflet
 import 'leaflet/dist/leaflet.css';
 import Modal from '../Components/Modal';
@@ -60,6 +60,7 @@ const HomePage = () => {
     const [showModal, setShowModal] = useState(false);//Показать\скрыть модальное окно
     const polylinesRef = useRef([]);
     console.log(date);
+    const navigator = useNavigate();
 
     const formatDate = (date) => {
         return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
@@ -149,6 +150,7 @@ const HomePage = () => {
                 setTitle(response.data.title);
                 setDateState(formatDate(new Date(response.data.date)));
                 setPoints(response.data.points);
+                navigator('/news')
             } else {
                 throw new Error('Ошибка при обновлении');
             }
