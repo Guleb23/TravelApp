@@ -51,7 +51,7 @@ const FeedPage = () => {
         e.preventDefault();
         setPage(1);
     };
-
+    //Записываем выбранный тег
     const handleTagClick = (tag) => {
         setSelectedTag(tag === selectedTag ? null : tag);
         setPage(1);
@@ -76,7 +76,6 @@ const FeedPage = () => {
     };
 
     const handleShare = (postId) => {
-        // Здесь можно реализовать функционал шаринга
         console.log('Sharing post:', postId);
         navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
         alert('Ссылка скопирована в буфер обмена!');

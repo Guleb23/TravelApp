@@ -2,11 +2,8 @@ import React from 'react'
 import { Outlet } from 'react-router'
 import NavBar from '../Components/NavBar'
 
-import { useAuth } from '../Context/AuthContext';
-
+//Скелет для приложения
 const HomePageLayout = () => {
-
-
     return (
         <section className='w-screen h-screen overflow-x-hidden  '>
             <div className='h-full w-full flex overflow-y-hidden'>

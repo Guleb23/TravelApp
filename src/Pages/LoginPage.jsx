@@ -12,7 +12,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
-
+    //Запрос на вход
     const handleSubmit = async () => {
         try {
             await login(email, password);
@@ -22,8 +22,6 @@ const LoginPage = () => {
             alert('Ошибка!');
         }
     };
-
-
     return (
         <section className='w-screen h-screen flex justify-center items-center  '>
             <div className='flex flex-col w-xl h-[85vh]  rounded-2xl shadow-[0px_10px_15px_-3px_rgba(0,_0,_0,_0.1)]   font-main text-white '>

@@ -13,20 +13,24 @@ import { useAuth } from '../Context/AuthContext';
 import ShareModal from '../Components/ShareModal';
 
 const HomePage = () => {
-    const { user, refreshTokens } = useAuth();
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [travels, setTravels] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const navigate = useNavigate();
-    const [showShareModal, setShowShareModal] = useState(false);
-    const [selectedTravelId, setSelectedTravelId] = useState(null);
+    const { user } = useAuth();//Получение данных о пользователе из AuthContext
+    const [selectedDate, setSelectedDate] = useState(null);//State для даты
+    const [travels, setTravels] = useState([]);//Список путешествий
+    const [loading, setLoading] = useState(true);//Состояние загрузки
+    const [error, setError] = useState(null);//Состояние ошибок
+    const navigate = useNavigate();//Хук навигации
+    const [showShareModal, setShowShareModal] = useState(false);//пОКАЗАТЬ/СКРЫТЬ МОДАЛЬНОЕ ОКНО
+    const [selectedTravelId, setSelectedTravelId] = useState(null);//Id выбранного маршрута
 
+
+    //Открытие модального окна
     const handleShareClick = (travelId) => {
         setSelectedTravelId(travelId);
         setShowShareModal(true);
     };
 
+
+    //Запрос на изменение тега и пост в ленту
     const handleShareTravel = async (travelId, tags) => {
         try {
             await axios.put(`https://guleb23-apifortravel-a985.twc1.net/api/travels/${travelId}/share`, { tags });
@@ -45,6 +49,8 @@ const HomePage = () => {
         }
     };
 
+
+    //Форматирование даты для единого формата
     const formatDate = (date) => {
         return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
             .toISOString()
@@ -85,11 +91,13 @@ const HomePage = () => {
         }
     }));
 
+    //Выбор даты в календаре
     const handleDateClick = (arg) => {
         const clickedDate = formatDate(new Date(arg.date));
         setSelectedDate(clickedDate);
     };
 
+    //Удаление путешествия
     const handleDelete = async (id) => {
         try {
             await axios.delete(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${id}`);
@@ -101,12 +109,15 @@ const HomePage = () => {
         }
     };
 
+    //Редирект на страниу создания путешествия
     const handleBtnClick = () => {
         if (selectedDate) {
             navigate('/profile', { state: { date: selectedDate } });
         }
     };
 
+
+    //Стилизация ячеек календаря
     const dayCellClassNames = (arg) => {
         const cellDate = new Date(arg.date.getTime() - arg.date.getTimezoneOffset() * 60000)
             .toISOString()
@@ -125,7 +136,7 @@ const HomePage = () => {
 
         return baseClasses;
     };
-
+    //Компонент который рендерит имеющиеся путешествия
     const renderUpcomingTravels = () => {
         if (loading) return <p className="p-4">Загрузка...</p>;
         if (error) return <p className="p-4 text-red-500">Ошибка: {error}</p>;
@@ -234,7 +245,7 @@ const HomePage = () => {
         </div>
     );
 };
-
+//Отображения путушествия н каледаре
 function renderEventContent(eventInfo) {
     return (
         <div className="fc-event-main-frame">

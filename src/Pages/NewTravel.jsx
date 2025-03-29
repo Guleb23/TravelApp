@@ -8,7 +8,6 @@ import 'leaflet/dist/leaflet.css';
 import Modal from '../Components/Modal';
 import { useAuth } from '../Context/AuthContext';
 import axios from 'axios';
-
 import { BsCheckCircle, BsExclamationDiamond } from 'react-icons/bs';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 
@@ -35,22 +34,14 @@ L.Icon.Default.mergeOptions({
 });
 
 const HomePage = () => {
-
     const { id } = useParams();
-
-
-    console.log(id);
-
-
     const { user } = useAuth();
-
-    const [travel, setTravel] = useState({});
     const [originalPoints, setOriginalPoints] = useState([]); // Добавляем состояние для исходного массива
     const [selectedPointIndex, setSelectedPointIndex] = useState(null);//Для загрузки фото
     const [points, setPoints] = useState([]);//Для точек
     const [inputValue, setInputValue] = useState('');//Для подсказок
     const [suggestions, setSuggestions] = useState([]);//Сами подсказки
-    const [isAdding, setIsAdding] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);//Флаг добавления
     const [selectedSuggestion, setSelectedSuggestion] = useState(null);//Выбранная подсказка
     const mapRef = useRef(null);//Реф карты
     const markersRef = useRef([]);//Реф маркеров
@@ -59,15 +50,23 @@ const HomePage = () => {
     const [title, setTitle] = useState();//Название путешествия
     const [dateState, setDateState] = useState(date);//Сама дата
     const [showModal, setShowModal] = useState(false);//Показать\скрыть модальное окно
-    const polylinesRef = useRef([]);
-    console.log(date);
-    const navigator = useNavigate();
-
+    const polylinesRef = useRef([]);//Сссылка для маршрута
+    const navigator = useNavigate();//Хук навигации
+    const [routeCalculations, setRouteCalculations] = useState({
+        inProgress: false,
+        lastAbortController: null
+    });
+    //Если есть старые маршруты удалем их
+    if (!window.routePolylines) {
+        window.routePolylines = [];
+    }
+    //Форматирование даты
     const formatDate = (date) => {
         return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
             .toISOString()
             .split('T')[0];
     };
+    //Пересчитывание маршрута
     const recalculateAllRoutes = async (pointsArray) => {
         if (pointsArray.length < 2) return pointsArray;
 
@@ -106,7 +105,7 @@ const HomePage = () => {
 
         return updatedPoints;
     };
-
+    //Запрос на сервер
     const handleUpdate = useCallback(async () => {
         try {
             // Валидация данных
@@ -194,7 +193,6 @@ const HomePage = () => {
             }))
         );
     };
-
     const processPhotos = async (photos) => {
         return Promise.all(photos.map(async photo => {
             const imageUrl = `https://guleb23-apifortravel-a985.twc1.net/${photo.filePath.replace(/\\/g, '/')
@@ -206,7 +204,6 @@ const HomePage = () => {
             };
         }));
     };
-
     // Загрузка данных о путешествиях
     useEffect(() => {
         if (id) {
@@ -262,22 +259,8 @@ const HomePage = () => {
         }
     }, [id]);
 
-
-
-
-    // Добавляем в состояние компонента
-    const [routeCalculations, setRouteCalculations] = useState({
-        inProgress: false,
-        lastAbortController: null
-    });
-
-    if (!window.routePolylines) {
-        window.routePolylines = [];
-    }
-
-    //////////////////////////////////////////////Вспомогательное
-
-    // Обновленные функции перемещения
+    //Конпки для перемещения
+    //ВВЕРХ
     const movePointUp = async (index) => {
         if (index <= 1) {
             if (index === 0) alert("Начальная точка маршрута не может быть перемещена");
@@ -294,7 +277,7 @@ const HomePage = () => {
         const updatedPoints = await recalculateRoutes(newPoints);
         setPoints(updatedPoints);
     };
-
+    //ВНИЗ
     const movePointDown = async (index) => {
         if (index === 0) {
             alert("Начальная точка маршрута не может быть перемещена");
@@ -311,6 +294,7 @@ const HomePage = () => {
         const updatedPoints = await recalculateRoutes(newPoints);
         setPoints(updatedPoints);
     };
+    //Очитска маршрутов
     const clearAllRoutes = () => {
         // Удаляем все полилинии с карты
         if (polylinesRef.current) {
@@ -332,6 +316,8 @@ const HomePage = () => {
             window.routePolylines = [];
         }
     };
+
+    //Запрос для сохранения маршрута
     const handleSave = useCallback(async () => {
         try {
             const payload = {
@@ -349,9 +335,11 @@ const HomePage = () => {
             alert(`Не удалось сохранить: ${err.message}`);
         }
     }, [title, dateState, points]);
+    //Открытие модлаьного окна для фото
     const toggleShowModal = () => {
         setShowModal(!showModal);
     };
+    //Получение случайного цвета для маршрута
     const getRandomBrightColor = () => {
         // Генерируем насыщенные цвета в HSV, затем конвертируем в RGB
         const hue = Math.floor(Math.random() * 360); // Полный диапазон оттенков
@@ -540,7 +528,7 @@ const HomePage = () => {
             console.error('Ошибка при получении подсказок:', error);
         }
     };
-
+    // Поиск времени работы
     const fetchOSMDetails = async (osmType, osmId) => {
         try {
             const response = await fetch(
@@ -984,8 +972,6 @@ const HomePage = () => {
         };
 
     };
-
-    // Simple fallback validation
     const simpleOpeningHoursCheck = (openingHours, arrivalTime) => {
         const timeToMinutes = (timeStr) => {
             if (!timeStr) return NaN;
@@ -1031,13 +1017,7 @@ const HomePage = () => {
             message: `✓ Открыто с ${openTime} до ${closeTime}`
         };
     };
-
-
-
-
-
-
-
+    //Компонент рендера времени
     const TimeCheckInfo = ({ point }) => {
         if (!point.arrivalTime || !point.osmData?.opening_hours) return null;
 

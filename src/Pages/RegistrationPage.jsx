@@ -13,7 +13,7 @@ const RegistrationPage = () => {
     const [psw, setPsw] = useState('');
     const { register } = useAuth();
     const navigate = useNavigate();
-
+    //Запрос на регистрацию
     const handleSubmit = async () => {
         if (password == psw) {
             try {
