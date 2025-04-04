@@ -1,0 +1,9 @@
+.route-polyline {
+    transition: z-index 0.3s;
+}
+
+.route-polyline:hover {
+    z-index: 10000 !important;
+    opacity: 1 !important;
+    stroke-width: 7 !important;
+}

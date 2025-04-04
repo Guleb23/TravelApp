@@ -10,6 +10,8 @@ import { useAuth } from '../Context/AuthContext';
 import axios from 'axios';
 import { BsCheckCircle, BsExclamationDiamond } from 'react-icons/bs';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import '../travels.css'
+
 
 const POINT_TYPES = {
     attraction: {
@@ -454,22 +456,39 @@ const HomePage = () => {
 
         const routeColor = getRandomBrightColor();
 
-        // GraphHopper возвращает координаты в формате [lat, lon], Leaflet ожидает [lat, lng]
+        // Добавляем z-index, который увеличивается с каждым новым маршрутом
+        const zIndexOffset = 1000 + (polylinesRef.current.length * 10);
+
         const latLngs = coordinates.map(coord => [coord[1], coord[0]]);
 
         const polyline = L.polyline(latLngs, {
             color: routeColor,
             weight: 5,
             opacity: 0.7,
-            className: 'route-polyline'
+            className: 'route-polyline',
+            zIndexOffset: zIndexOffset // Устанавливаем z-index
         }).addTo(mapRef.current);
+        // В функции drawRoute после создания polyline добавьте:
+        polyline.on('mouseover', function () {
+            this.bringToFront();
+            this.setStyle({
+                weight: 7,
+                opacity: 1
+            });
+        });
 
+        polyline.on('mouseout', function () {
+            this.setStyle({
+                weight: 5,
+                opacity: 0.7
+            });
+        });
         polyline.bindPopup(`
-        <div class="route-popup">
+          <div class="route-popup">
             <strong>${startPoint.name} → ${endPoint.name}</strong><br>
             Время в пути: ${Math.floor(duration / 60)} мин
-        </div>
-    `);
+          </div>
+        `);
 
         polylinesRef.current.push(polyline);
         return polyline;
