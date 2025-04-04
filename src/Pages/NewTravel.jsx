@@ -555,7 +555,42 @@ const HomePage = () => {
         setInputValue(value);
         debouncedFetchSuggestions(value);
     };
+    const handleDeletePhoto = async (pointId, photoId, pointIndex, photoIndex) => {
+        try {
+            // Если есть ID точки и ID фото, делаем запрос на сервер для удаления
+            if (pointId && photoId) {
+                await axios.delete(
+                    `https://guleb23-apifortravel-a985.twc1.net/api/points/${pointId}/photos/${photoId}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        }
+                    }
+                );
+            }
 
+            // Обновляем состояние независимо от успешности запроса
+            setPoints(prevPoints => {
+                const newPoints = [...prevPoints];
+                const pointPhotos = [...newPoints[pointIndex].photos];
+
+                // Удаляем фото из массива
+                pointPhotos.splice(photoIndex, 1);
+
+                // Обновляем точку
+                newPoints[pointIndex] = {
+                    ...newPoints[pointIndex],
+                    photos: pointPhotos
+                };
+
+                return newPoints;
+            });
+
+        } catch (error) {
+            console.error('Ошибка при удалении фото:', error);
+            alert('Не удалось удалить фотографию');
+        }
+    };
     // Обработчик выбора подсказки
     const handleSuggestionClick = (suggestion) => {
         setInputValue(suggestion.display_name); // Устанавливаем выбранное значение в поле ввода
@@ -1319,7 +1354,10 @@ const HomePage = () => {
                                                             }}
                                                         />
                                                         <button
-                                                            onClick={() => handleDeletePhoto(point.id, photo.id, index, photoIndex)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeletePhoto(point.id, photo.id, index, photoIndex);
+                                                            }}
                                                             className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
                                                         >
                                                             ×
