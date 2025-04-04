@@ -448,31 +448,30 @@ const HomePage = () => {
     };
 
     // Отрисовка маршрута
+    // Отрисовка маршрута
     const drawRoute = (coordinates, startPoint, endPoint, duration) => {
-        if (!mapRef.current) return null;
+        if (!mapRef.current || !coordinates || coordinates.length === 0) return null;
 
         const routeColor = getRandomBrightColor();
-        const polyline = L.polyline(
-            coordinates.map(coord => [coord[1], coord[0]]),
-            {
-                color: routeColor,
-                weight: 5,
-                className: 'route-polyline' // Добавляем класс для стилизации
-            }
-        ).addTo(mapRef.current);
 
-        // Добавляем popup с информацией
+        // GraphHopper возвращает координаты в формате [lat, lon], Leaflet ожидает [lat, lng]
+        const latLngs = coordinates.map(coord => [coord[1], coord[0]]);
+
+        const polyline = L.polyline(latLngs, {
+            color: routeColor,
+            weight: 5,
+            opacity: 0.7,
+            className: 'route-polyline'
+        }).addTo(mapRef.current);
+
         polyline.bindPopup(`
-            <div class="route-popup">
-                <strong>${startPoint.name} → ${endPoint.name}</strong><br>
-                Время в пути: ${Math.floor(duration / 60)} мин
-            </div>
-        `);
+        <div class="route-popup">
+            <strong>${startPoint.name} → ${endPoint.name}</strong><br>
+            Время в пути: ${Math.floor(duration / 60)} мин
+        </div>
+    `);
 
-        // Сохраняем в ref только текущий полилайн
-        // Старые остаются на карте автоматически
         polylinesRef.current.push(polyline);
-
         return polyline;
     };
     //Обновляем маркеры
@@ -483,7 +482,47 @@ const HomePage = () => {
 
     }, [points]); // Зависимость от `points`
 
+    // Fallback расчет маршрута
+    const fallbackRouteCalculation = (startPoint, endPoint, departureTime) => {
+        // Формула гаверсинусов для расчета расстояния
+        const R = 6371; // Радиус Земли в км
+        const dLat = toRad(endPoint.coordinates.lat - startPoint.coordinates.lat);
+        const dLon = toRad(endPoint.coordinates.lon - startPoint.coordinates.lon);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRad(startPoint.coordinates.lat)) *
+            Math.cos(toRad(endPoint.coordinates.lat)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
 
+        // Предполагаем среднюю скорость 30 км/ч в городе
+        const durationInSeconds = (distance / 30) * 3600;
+
+        const departureTimestamp = new Date(`1970-01-01T${departureTime}:00`).getTime();
+        const arrivalTimestamp = departureTimestamp + durationInSeconds * 1000;
+
+        let additionalTime = points.indexOf(startPoint) !== 0
+            ? (POINT_TYPES[startPoint.type]?.duration || 0) * 60 * 1000
+            : 0;
+
+        // Создаем упрощенный маршрут (прямая линия между точками)
+        const routeCoordinates = [
+            [startPoint.coordinates.lat, startPoint.coordinates.lon],
+            [endPoint.coordinates.lat, endPoint.coordinates.lon]
+        ];
+
+        return {
+            arrivalTime: new Date(arrivalTimestamp + additionalTime).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            }),
+            duration: durationInSeconds + (additionalTime / 1000),
+            routeCoordinates: routeCoordinates
+        };
+    };
+
+    const toRad = (value) => value * Math.PI / 180;
     ///////////////////////////////////////////////////////////////Работа с подсказками/////////////////////////////////////
     // Дебаунсированная версия функции fetchSuggestions
     const debouncedFetchSuggestions = useCallback(
@@ -794,8 +833,8 @@ const HomePage = () => {
         setPoints(recalculatedPoints);
     };
     // Функция для расчета времени прибытия через 2GIS API
+    // Функция для расчета времени прибытия через GraphHopper API
     const calculateArrivalTime = async (startPoint, endPoint, departureTime) => {
-        // Отменяем предыдущий запрос, если есть
         if (routeCalculations.lastAbortController) {
             routeCalculations.lastAbortController.abort();
         }
@@ -807,36 +846,52 @@ const HomePage = () => {
         });
 
         try {
-            const start = `${startPoint.coordinates.lon},${startPoint.coordinates.lat}`;
-            const end = `${endPoint.coordinates.lon},${endPoint.coordinates.lat}`;
+            const startLat = startPoint.coordinates.lat;
+            const startLon = startPoint.coordinates.lon;
+            const endLat = endPoint.coordinates.lat;
+            const endLon = endPoint.coordinates.lon;
 
-            // Добавляем таймаут 10 секунд
-            const timeout = 10000;
+            const GH_API_KEY = "3de85b8c-5205-4846-9693-16486861c7d9";
+
+            // Добавляем points_encoded=false для получения полных координат
+            const url = `https://graphhopper.com/api/1/route?` +
+                `point=${startLat},${startLon}&` +
+                `point=${endLat},${endLon}&` +
+                `vehicle=car&` +
+                `points_encoded=false&` + // Важно для получения координат
+                `key=${GH_API_KEY}`;
+
+            const timeout = 15000;
             const timeoutPromise = new Promise((_, reject) =>
                 setTimeout(() => reject(new Error('Request timeout')), timeout)
             );
 
             const response = await Promise.race([
-                fetch(`https://router.project-osrm.org/route/v1/driving/${start};${end}?overview=full&geometries=geojson`, {
-                    signal: controller.signal
+                fetch(url, {
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 }),
                 timeoutPromise
             ]);
 
             const data = await response.json();
 
-            if (!data.routes || data.routes.length === 0) {
+            if (!data.paths || data.paths.length === 0) {
                 throw new Error('No route found');
             }
 
-            const durationInSeconds = data.routes[0].duration;
+            const durationInSeconds = data.paths[0].time / 1000;
             const departureTimestamp = new Date(`1970-01-01T${departureTime}:00`).getTime();
             const arrivalTimestamp = departureTimestamp + durationInSeconds * 1000;
 
-            // Время на посещение точки (если не начальная)
             let additionalTime = points.indexOf(startPoint) !== 0
                 ? (POINT_TYPES[startPoint.type]?.duration || 0) * 60 * 1000
                 : 0;
+
+            // Получаем координаты маршрута из ответа GraphHopper
+            const routeCoordinates = data.paths[0].points.coordinates || [];
 
             return {
                 arrivalTime: new Date(arrivalTimestamp + additionalTime).toLocaleTimeString([], {
@@ -844,17 +899,13 @@ const HomePage = () => {
                     minute: '2-digit'
                 }),
                 duration: durationInSeconds + (additionalTime / 1000),
-                routeCoordinates: data.routes[0].geometry.coordinates
+                routeCoordinates: routeCoordinates
             };
         } catch (error) {
             if (error.name !== 'AbortError') {
                 console.error('Route calculation error:', error);
-                // Показываем пользователю упрощенное сообщение
-                return {
-                    arrivalTime: '--:--',
-                    duration: 0,
-                    routeCoordinates: []
-                };
+                // Возвращаем fallback данные
+                return fallbackRouteCalculation(startPoint, endPoint, departureTime);
             }
             return null;
         } finally {
@@ -864,6 +915,8 @@ const HomePage = () => {
             }));
         }
     };
+
+
     // Функция для создния точек
     useEffect(() => {
         const updateMapMarkers = () => {

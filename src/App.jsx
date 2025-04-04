@@ -6,7 +6,6 @@ import LoginPage from './Pages/LoginPage'
 import RegistrationPage from './Pages/RegistrationPage'
 import HomePageLayout from './Pages/HomePageLayout'
 import PrivateRoute from './Helpers/PrivateRoute'
-import NewsPage from './Pages/NewsPage'
 import ProfilePage from './Pages/ProfilePage'
 import NewTravel from './Pages/NewTravel'
 
