@@ -1,42 +1,35 @@
-import React, { useState } from 'react'
+import React from 'react'
 import CustomInput from '../Components/CustomInput'
 import "../Font.css"
 import CustomBtn from '../Components/CustomBtn'
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from "../Context/AuthContext"
 import { BsGeoAlt } from 'react-icons/bs'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+
+// Схема валидации
+const schema = yup.object().shape({
+    email: yup.string().email('Некорректный email').required('Email обязателен'),
+    password: yup.string().min(6, 'Минимум 6 символов').required('Пароль обязателен'),
+});
 
 const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState({});
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const validate = () => {
-        const newErrors = {};
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        resolver: yupResolver(schema),
+    });
 
-        if (!email) {
-            newErrors.email = "Email обязателен";
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-            newErrors.email = "Введите корректный email";
-        }
-
-        if (!password) {
-            newErrors.password = "Пароль обязателен";
-        } else if (password.length < 6) {
-            newErrors.password = "Пароль должен содержать минимум 6 символов";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async () => {
-        if (!validate()) return;
-
+    const onSubmit = async (data) => {
         try {
-            await login(email, password);
+            await login(data.email, data.password);
             alert('Добро пожаловать!');
             navigate(`/`);
         } catch (error) {
@@ -58,36 +51,36 @@ const LoginPage = () => {
                         </div>
                     </div>
                 </div>
-                <div className='flex-1 p-6 flex flex-col gap-6'>
+
+                <form onSubmit={handleSubmit(onSubmit)} className='flex-1 p-6 flex flex-col gap-6'>
                     <div>
                         <CustomInput
-                            value={email}
-                            handleChange={(newValue) => setEmail(newValue)}
+                            {...register("email")}
                             label="Email"
                             placeholder="вы@example.com"
                         />
-                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                     </div>
 
                     <div>
                         <CustomInput
-                            value={password}
-                            handleChange={(newValue) => setPassword(newValue)}
+                            {...register("password")}
                             type="password"
                             label="Пароль"
                             placeholder="Пароль"
                         />
-                        {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                        {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                     </div>
 
-                    <CustomBtn onClick={handleSubmit} text="Войти" customStyles="bg-[#94a56f] font-main" />
+                    <CustomBtn type="submit" text="Войти" customStyles="bg-[#94a56f] font-main" />
+
                     <div className='text-black font-main text-center'>
                         <p className='inline-block pr-1'>Нет аккаунта?</p>
                         <Link to={`/registration`}>
                             <button className='inline-block text-[#94a56f] cursor-pointer'>Зарегистрируйтесь</button>
                         </Link>
                     </div>
-                </div>
+                </form>
             </div>
         </section>
     );

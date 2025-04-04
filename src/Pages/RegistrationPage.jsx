@@ -1,57 +1,46 @@
-import React, { useState } from 'react'
+import React from 'react'
 import CustomBtn from '../Components/CustomBtn'
 import CustomInput from '../Components/CustomInput'
 import { BsGeoAlt } from "react-icons/bs"
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../Context/AuthContext'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+
+// Схема валидации
+const schema = yup.object().shape({
+    email: yup.string().email('Введите корректный email').required('Email обязателен'),
+    username: yup.string().required('Имя пользователя обязательно'),
+    password: yup.string().min(6, 'Минимум 6 символов').required('Пароль обязателен'),
+    confirmPassword: yup.string()
+        .oneOf([yup.ref('password'), null], 'Пароли не совпадают')
+        .required('Подтверждение пароля обязательно'),
+});
 
 const RegistrationPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
-    const [psw, setPsw] = useState('');
-    const [errors, setErrors] = useState({});
-    const { register } = useAuth();
+    const { register: registerUser } = useAuth();
     const navigate = useNavigate();
 
-    const validate = () => {
-        const newErrors = {};
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        resolver: yupResolver(schema),
+    });
 
-        if (!email) {
-            newErrors.email = "Email обязателен";
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-            newErrors.email = "Введите корректный email";
-        }
-
-        if (!username) {
-            newErrors.username = "Имя пользователя обязательно";
-        }
-
-        if (!password) {
-            newErrors.password = "Пароль обязателен";
-        } else if (password.length < 6) {
-            newErrors.password = "Пароль должен быть минимум 6 символов";
-        }
-
-        if (!psw) {
-            newErrors.psw = "Подтверждение пароля обязательно";
-        } else if (password !== psw) {
-            newErrors.psw = "Пароли не совпадают";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async () => {
-        if (!validate()) return;
-
+    const onSubmit = async (data) => {
         try {
-            await register(email, password, username);
+            await registerUser(data.email, data.password, data.username);
             alert('Успешная регистрация');
-            navigate(`/`);
+            navigate('/');
         } catch (error) {
-            alert('Ошибка регистрации!');
+            if (error?.response?.status === 409) {
+                alert("Пользователь с таким email уже существует");
+            } else {
+                alert("Произошла ошибка при регистрации");
+            }
         }
     };
 
@@ -69,28 +58,28 @@ const RegistrationPage = () => {
                         </div>
                     </div>
                 </div>
-                <div className='flex-1 p-6 flex flex-col gap-6'>
+                <form onSubmit={handleSubmit(onSubmit)} className='flex-1 p-6 flex flex-col gap-6' noValidate>
                     <div>
-                        <CustomInput value={email} handleChange={setEmail} label="Email" placeholder="вы@example.com" />
-                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                        <CustomInput {...register('email')} label="Email" placeholder="вы@example.com" />
+                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                     </div>
 
                     <div>
-                        <CustomInput value={username} handleChange={setUsername} label="Имя пользователя" placeholder="myusername" />
-                        {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
+                        <CustomInput {...register('username')} label="Имя пользователя" placeholder="myusername" />
+                        {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>}
                     </div>
 
                     <div>
-                        <CustomInput value={password} handleChange={setPassword} type="password" label="Пароль" placeholder="Пароль" />
-                        {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                        <CustomInput {...register('password')} type="password" label="Пароль" placeholder="Пароль" />
+                        {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                     </div>
 
                     <div>
-                        <CustomInput value={psw} handleChange={setPsw} type="password" label="Подтвердите пароль" placeholder="Подтвердите пароль" />
-                        {errors.psw && <p className="text-red-500 text-sm mt-1">{errors.psw}</p>}
+                        <CustomInput {...register('confirmPassword')} type="password" label="Подтвердите пароль" placeholder="Подтвердите пароль" />
+                        {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
                     </div>
 
-                    <CustomBtn onClick={handleSubmit} text="Создать аккаунт" customStyles="bg-[#94a56f] font-main" />
+                    <CustomBtn type="submit" text="Создать аккаунт" customStyles="bg-[#94a56f] font-main" />
 
                     <div className='text-black font-main text-center'>
                         <p className='inline-block pr-1'>Уже есть аккаунт?</p>
@@ -98,7 +87,7 @@ const RegistrationPage = () => {
                             <button className='inline-block text-[#94a56f] cursor-pointer'>Войти</button>
                         </Link>
                     </div>
-                </div>
+                </form>
             </div>
         </section>
     );
