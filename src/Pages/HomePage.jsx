@@ -107,7 +107,7 @@ const HomePage = () => {
         try {
             await axios.delete(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${id}`);
             showCustomToast({
-                type: 'error',
+                type: 'success',
                 title: 'Путешествие успешно удалено!',
 
             });

@@ -11,7 +11,7 @@ const FeedPage = () => {
     const [selectedTag, setSelectedTag] = useState(null);
     const [allTags, setAllTags] = useState([]);
     const [likedPosts, setLikedPosts] = useState(new Set());
-
+    const [expandedPosts, setExpandedPosts] = useState(new Set());
     // Загрузка данных
     useEffect(() => {
         const fetchData = async () => {
@@ -45,7 +45,17 @@ const FeedPage = () => {
         fetchData();
         fetchTags();
     }, [page, searchQuery, selectedTag]);
-
+    const toggleExpand = (postId) => {
+        setExpandedPosts(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(postId)) {
+                newSet.delete(postId);
+            } else {
+                newSet.add(postId);
+            }
+            return newSet;
+        });
+    };
     // Обработчики событий
     const handleSearch = (e) => {
         e.preventDefault();
@@ -176,7 +186,7 @@ const FeedPage = () => {
 
                                 {/* Точки маршрута */}
                                 <div className="p-4">
-                                    {post.points.slice(0, 3).map(point => (
+                                    {(expandedPosts.has(post.id) ? post.points : post.points.slice(0, 3)).map(point => (
                                         <div key={point.id} className="mb-3 last:mb-0">
                                             <div className="flex justify-between">
                                                 <h3 className="font-medium text-gray-800">{point.name}</h3>
@@ -187,8 +197,6 @@ const FeedPage = () => {
                                             {point.address && (
                                                 <p className="text-sm text-gray-600">{point.address}</p>
                                             )}
-
-                                            {/* Фото (первые 3) */}
                                             {point.photos && point.photos.length > 0 && (
                                                 <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
                                                     {point.photos.slice(0, 3).map(photo => (
@@ -232,11 +240,11 @@ const FeedPage = () => {
                                         <FaShare className="mr-1" />
                                         <span>Поделиться</span>
                                     </button>
-
                                     <button
+                                        onClick={() => toggleExpand(post.id)}
                                         className="text-[#94a56f] hover:underline"
                                     >
-                                        Подробнее
+                                        {expandedPosts.has(post.id) ? 'Скрыть' : 'Подробнее'}
                                     </button>
                                 </div>
                             </div>

@@ -348,9 +348,9 @@ const HomePage = () => {
             axios.post(`https://guleb23-apifortravel-a985.twc1.net/api/users/${user.id}/travels`, payload);
 
             showCustomToast({
-                type: 'error',
+                type: 'success',
                 title: 'Маршрут сохранен!',
-                message: 'Уадчного пути!'
+                message: 'Удачного пути!'
             });
             navigator('/news')
 
