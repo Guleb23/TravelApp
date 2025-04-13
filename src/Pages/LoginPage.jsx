@@ -8,6 +8,7 @@ import { BsGeoAlt } from 'react-icons/bs'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
+import toast from 'react-hot-toast'
 
 // Схема валидации
 const schema = yup.object().shape({
@@ -30,10 +31,10 @@ const LoginPage = () => {
     const onSubmit = async (data) => {
         try {
             await login(data.email, data.password);
-            alert('Добро пожаловать!');
+            toast.success('Добро пожаловать!');
             navigate(`/`);
         } catch (error) {
-            alert('Ошибка входа! Проверьте данные.');
+            toast.error('Ошибка входа! Проверьте данные.');
         }
     };
 

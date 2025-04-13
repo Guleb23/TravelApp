@@ -11,6 +11,7 @@ import axios from 'axios';
 import { BsCheckCircle, BsExclamationDiamond } from 'react-icons/bs';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import '../travels.css'
+import toast from 'react-hot-toast';
 
 
 const POINT_TYPES = {
@@ -174,14 +175,14 @@ const HomePage = () => {
                 setDateState(formatDate(new Date(updatedTravel.date)));
                 setPoints(updatedPoints);
 
-                alert('Путешествие успешно обновлено!');
+                toast.success('Путешествие успешно обновлено!');
                 navigator('/news', { state: { refresh: true } });
             } else {
                 throw new Error(`Ошибка сервера: ${response.statusText}`);
             }
         } catch (error) {
             console.error('Update error:', error);
-            alert(`Ошибка при обновлении: ${error.response?.data?.message ||
+            toast.error(`Ошибка при обновлении: ${error.response?.data?.message ||
                 error.message ||
                 'Неизвестная ошибка'
                 }`);
@@ -265,8 +266,8 @@ const HomePage = () => {
     //ВВЕРХ
     const movePointUp = async (index) => {
         if (index <= 1) {
-            if (index === 0) alert("Начальная точка маршрута не может быть перемещена");
-            if (index === 1) alert("Нельзя перемещать точку перед начальной");
+            if (index === 0) toast.error("Начальная точка маршрута не может быть перемещена");
+            if (index === 1) toast.error("Нельзя перемещать точку перед начальной");
             return;
         }
 
@@ -282,7 +283,7 @@ const HomePage = () => {
     //ВНИЗ
     const movePointDown = async (index) => {
         if (index === 0) {
-            alert("Начальная точка маршрута не может быть перемещена");
+            toast.error("Начальная точка маршрута не может быть перемещена");
             return;
         }
         if (index >= points.length - 1) return;
@@ -329,12 +330,12 @@ const HomePage = () => {
             };
             console.log(payload);
             axios.post(`https://guleb23-apifortravel-a985.twc1.net/api/users/${user.id}/travels`, payload);
-            alert('Маршрут сохранен!');
+            toast.success('Маршрут сохранен!');
             navigator('/news')
 
         } catch (err) {
             console.error('Ошибка:', err);
-            alert(`Не удалось сохранить: ${err.message}`);
+            toast.error(`Не удалось сохранить: ${err.message}`);
         }
     }, [title, dateState, points]);
     //Открытие модлаьного окна для фото
@@ -588,7 +589,7 @@ const HomePage = () => {
 
         } catch (error) {
             console.error('Ошибка при удалении фото:', error);
-            alert('Не удалось удалить фотографию');
+            toast.error('Не удалось удалить фотографию');
         }
     };
     // Обработчик выбора подсказки

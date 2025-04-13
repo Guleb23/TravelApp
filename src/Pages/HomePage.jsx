@@ -11,6 +11,7 @@ import { FaShare } from "react-icons/fa";
 import axios from 'axios';
 import { useAuth } from '../Context/AuthContext';
 import ShareModal from '../Components/ShareModal';
+import toast from 'react-hot-toast';
 
 const HomePage = () => {
     const { user } = useAuth();//Получение данных о пользователе из AuthContext
@@ -34,7 +35,7 @@ const HomePage = () => {
     const handleShareTravel = async (travelId, tags) => {
         try {
             await axios.put(`https://guleb23-apifortravel-a985.twc1.net/api/travels/${travelId}/share`, { tags });
-            alert('Путешествие успешно опубликовано!');
+            toast.success('Путешествие успешно опубликовано!');
 
             // Обновляем список путешествий только если user.id доступен
             if (user?.id) {
@@ -45,7 +46,7 @@ const HomePage = () => {
             setShowShareModal(false);
         } catch (error) {
             console.error('Ошибка при публикации:', error);
-            alert('Произошла ошибка при публикации');
+            toast.error('Произошла ошибка при публикации');
         }
     };
 
@@ -101,11 +102,11 @@ const HomePage = () => {
     const handleDelete = async (id) => {
         try {
             await axios.delete(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${id}`);
-            alert("Успешное удаление");
+            toast.success("Успешное удаление");
             setTravels(prevTravels => prevTravels.filter(travel => travel.id !== id));
         } catch (e) {
             console.log(e);
-            alert("Ошибка при удалении");
+            toast.error("Ошибка при удалении");
         }
     };
 

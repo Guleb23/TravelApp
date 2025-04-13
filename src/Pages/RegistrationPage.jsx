@@ -7,6 +7,7 @@ import { useAuth } from '../Context/AuthContext'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
+import toast from 'react-hot-toast'
 
 // Схема валидации
 const schema = yup.object().shape({
@@ -33,13 +34,13 @@ const RegistrationPage = () => {
     const onSubmit = async (data) => {
         try {
             await registerUser(data.email, data.password, data.username);
-            alert('Успешная регистрация');
+            toast.success('Успешная регистрация');
             navigate('/');
         } catch (error) {
             if (error?.response?.status === 409) {
-                alert("Пользователь с таким email уже существует");
+                toast.error("Пользователь с таким email уже существует");
             } else {
-                alert("Произошла ошибка при регистрации");
+                toast.error("Произошла ошибка при регистрации");
             }
         }
     };
