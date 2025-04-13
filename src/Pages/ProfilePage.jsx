@@ -186,44 +186,80 @@ const FeedPage = () => {
                                     )}
                                 </div>
 
-                                {/* Точки маршрута */}
-                                <AnimatePresence initial={false}>
-                                    {expandedPosts.has(post.id) && (
-                                        <motion.div
-                                            initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }}
-                                            animate={{ opacity: 1, scaleY: 1 }}
-                                            exit={{ opacity: 0, scaleY: 0 }}
-                                            transition={{ duration: 0.4, ease: 'easeInOut' }}
-                                            className="p-4 overflow-hidden origin-top"
-                                        >
-                                            {post.points.map(point => (
-                                                <div key={point.id} className="mb-3 last:mb-0">
-                                                    <div className="flex justify-between">
-                                                        <h3 className="font-medium text-gray-800">{point.name}</h3>
-                                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                                            {point.type}
-                                                        </span>
-                                                    </div>
-                                                    {point.address && (
-                                                        <p className="text-sm text-gray-600">{point.address}</p>
-                                                    )}
-                                                    {point.photos && point.photos.length > 0 && (
-                                                        <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
-                                                            {point.photos.slice(0, 3).map(photo => (
-                                                                <img
-                                                                    key={photo.id}
-                                                                    src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
-                                                                    alt={point.name}
-                                                                    className="h-24 rounded-md object-cover shadow-sm"
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                    )}
+                                <div className="p-4 overflow-hidden">
+                                    {/* Первые 3 точки — всегда видимы */}
+                                    {post.points.slice(0, 3).map(point => (
+                                        <div key={point.id} className="mb-3 last:mb-0">
+                                            <div className="flex justify-between">
+                                                <h3 className="font-medium text-gray-800">{point.name}</h3>
+                                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                    {point.type}
+                                                </span>
+                                            </div>
+                                            {point.address && (
+                                                <p className="text-sm text-gray-600">{point.address}</p>
+                                            )}
+                                            {point.photos && point.photos.length > 0 && (
+                                                <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
+                                                    {point.photos.slice(0, 3).map(photo => (
+                                                        <img
+                                                            key={photo.id}
+                                                            src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
+                                                            alt={point.name}
+                                                            className="h-24 rounded-md object-cover shadow-sm"
+                                                        />
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </motion.div>
+                                            )}
+                                        </div>
+                                    ))}
+
+                                    {/* Анимация оставшихся точек */}
+                                    <AnimatePresence>
+                                        {expandedPosts.has(post.id) && (
+                                            <motion.div
+                                                initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }}
+                                                animate={{ opacity: 1, scaleY: 1 }}
+                                                exit={{ opacity: 0, scaleY: 0 }}
+                                                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                                                className="mt-3 origin-top"
+                                            >
+                                                {post.points.slice(3).map(point => (
+                                                    <div key={point.id} className="mb-3 last:mb-0">
+                                                        <div className="flex justify-between">
+                                                            <h3 className="font-medium text-gray-800">{point.name}</h3>
+                                                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                                {point.type}
+                                                            </span>
+                                                        </div>
+                                                        {point.address && (
+                                                            <p className="text-sm text-gray-600">{point.address}</p>
+                                                        )}
+                                                        {point.photos && point.photos.length > 0 && (
+                                                            <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
+                                                                {point.photos.slice(0, 3).map(photo => (
+                                                                    <img
+                                                                        key={photo.id}
+                                                                        src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
+                                                                        alt={point.name}
+                                                                        className="h-24 rounded-md object-cover shadow-sm"
+                                                                    />
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Показ количества скрытых точек */}
+                                    {!expandedPosts.has(post.id) && post.points.length > 3 && (
+                                        <p className="text-sm text-gray-500 mt-2">
+                                            + еще {post.points.length - 3} точек маршрута...
+                                        </p>
                                     )}
-                                </AnimatePresence>
+                                </div>
 
                                 {/* Действия */}
                                 <div className="p-3 bg-gray-50 flex justify-between items-center">
