@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaShare, FaHeart, FaRegHeart, FaCalendarAlt } from 'react-icons/fa';
+import { FaSearch, FaShare, FaHeart, FaRegHeart, FaCalendarAlt, FaFacebook, FaTwitter, FaTelegram } from 'react-icons/fa';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 const FeedPage = () => {
@@ -12,6 +12,8 @@ const FeedPage = () => {
     const [allTags, setAllTags] = useState([]);
     const [likedPosts, setLikedPosts] = useState(new Set());
     const [expandedPosts, setExpandedPosts] = useState(new Set());
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false); // Состояние для открытия модалки
+    const [currentPostId, setCurrentPostId] = useState(null); // Состояние для текущего поста
     // Загрузка данных
     useEffect(() => {
         const fetchData = async () => {
@@ -55,6 +57,29 @@ const FeedPage = () => {
             }
             return newSet;
         });
+    };
+    // Функция для закрытия модалки
+    const closeShareModal = () => {
+        setIsShareModalOpen(false);
+        setCurrentPostId(null); // Очистим текущий пост
+    };
+
+    // Функция для обработки выбора соцсети
+    const handleSocialShare = (network) => {
+        let shareUrl = '';
+        const postUrl = `${window.location.origin}/post/${currentPostId}`;
+
+        if (network === 'facebook') {
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`;
+        } else if (network === 'twitter') {
+            shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}`;
+        } else if (network === 'telegram') {
+            shareUrl = `https://t.me/share/url?url=${encodeURIComponent(postUrl)}`;
+        }
+
+        // Открываем ссылку для соцсети в новом окне
+        window.open(shareUrl, '_blank');
+        closeShareModal(); // Закрываем модалку
     };
     // Обработчики событий
     const handleSearch = (e) => {
@@ -335,6 +360,42 @@ const FeedPage = () => {
                     </div>
                 )}
             </div>
+            {isShareModalOpen && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 className="text-xl mb-4">Поделиться в соцсетях</h3>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => handleSocialShare('facebook')}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-full flex items-center"
+                            >
+                                <FaFacebook className="mr-2" />
+                                Facebook
+                            </button>
+                            <button
+                                onClick={() => handleSocialShare('twitter')}
+                                className="px-4 py-2 bg-blue-400 text-white rounded-full flex items-center"
+                            >
+                                <FaTwitter className="mr-2" />
+                                Twitter
+                            </button>
+                            <button
+                                onClick={() => handleSocialShare('telegram')}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-full flex items-center"
+                            >
+                                <FaTelegram className="mr-2" />
+                                Telegram
+                            </button>
+                        </div>
+                        <button
+                            onClick={closeShareModal}
+                            className="mt-4 text-gray-500 hover:text-gray-700"
+                        >
+                            Закрыть
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
