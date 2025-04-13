@@ -21,6 +21,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.0.14",
     "axios": "^1.8.4",
+    "framer-motion": "^12.6.5",
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
     "lodash.debounce": "^4.0.8",

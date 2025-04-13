@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import toast from 'react-hot-toast'
+import { showCustomToast } from "../Helpers/showCustomToast";
 
 // Схема валидации
 const schema = yup.object().shape({
@@ -31,10 +32,18 @@ const LoginPage = () => {
     const onSubmit = async (data) => {
         try {
             await login(data.email, data.password);
-            toast.success('Добро пожаловать!');
+            showCustomToast({
+                type: 'success',
+                title: 'Успешный вход в аккаунт',
+                message: `Добро пожаловать`
+            });
             navigate(`/`);
         } catch (error) {
-            toast.error('Ошибка входа! Проверьте данные.');
+            showCustomToast({
+                type: 'err',
+                title: 'Не удалось войти',
+                message: `Проверьте введеные данные`
+            });
         }
     };
 

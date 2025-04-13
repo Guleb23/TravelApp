@@ -12,6 +12,7 @@ import { BsCheckCircle, BsExclamationDiamond } from 'react-icons/bs';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import '../travels.css'
 import toast from 'react-hot-toast';
+import { showCustomToast } from "../Helpers/showCustomToast";
 
 
 const POINT_TYPES = {
@@ -175,17 +176,24 @@ const HomePage = () => {
                 setDateState(formatDate(new Date(updatedTravel.date)));
                 setPoints(updatedPoints);
 
-                toast.success('Путешествие успешно обновлено!');
+
+                showCustomToast({
+                    type: 'success',
+                    title: 'Путешествие обновлено!',
+                    message: 'Все изменения сохранены. Отличная работа ✨'
+                });
                 navigator('/news', { state: { refresh: true } });
             } else {
                 throw new Error(`Ошибка сервера: ${response.statusText}`);
             }
         } catch (error) {
             console.error('Update error:', error);
-            toast.error(`Ошибка при обновлении: ${error.response?.data?.message ||
-                error.message ||
-                'Неизвестная ошибка'
-                }`);
+            showCustomToast({
+                type: 'error',
+                title: 'Ошибка при обновлении',
+                message: 'Попробуйте позже'
+            });
+
         }
     }, [id, title, dateState, points, navigator]);
     const processPoints = async (pointsData) => {
@@ -266,7 +274,11 @@ const HomePage = () => {
     //ВВЕРХ
     const movePointUp = async (index) => {
         if (index <= 1) {
-            if (index === 0) toast.error("Начальная точка маршрута не может быть перемещена");
+            if (index === 0) showCustomToast({
+                type: 'error',
+                title: 'Начальная точка не может быть перемещена',
+                message: 'Переместите другую точку'
+            });
             if (index === 1) toast.error("Нельзя перемещать точку перед начальной");
             return;
         }
@@ -283,7 +295,11 @@ const HomePage = () => {
     //ВНИЗ
     const movePointDown = async (index) => {
         if (index === 0) {
-            toast.error("Начальная точка маршрута не может быть перемещена");
+            showCustomToast({
+                type: 'error',
+                title: 'Начальная точка не может быть перемещена',
+                message: 'Переместите другую точку'
+            });
             return;
         }
         if (index >= points.length - 1) return;
@@ -330,7 +346,12 @@ const HomePage = () => {
             };
             console.log(payload);
             axios.post(`https://guleb23-apifortravel-a985.twc1.net/api/users/${user.id}/travels`, payload);
-            toast.success('Маршрут сохранен!');
+
+            showCustomToast({
+                type: 'error',
+                title: 'Маршрут сохранен!',
+                message: 'Уадчного пути!'
+            });
             navigator('/news')
 
         } catch (err) {
