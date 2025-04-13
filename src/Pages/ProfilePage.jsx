@@ -27,6 +27,8 @@ const FeedPage = () => {
 
                 const response = await axios.get('https://guleb23-apifortravel-a985.twc1.net/api/feed', { params });
                 setFeed(response.data.items);
+                console.log(response.data.items);
+
                 setTotalPages(response.data.totalPages);
                 setLoading(false);
             } catch (error) {
@@ -218,10 +220,13 @@ const FeedPage = () => {
                                                     ))}
                                                 </div>
                                             )}
-                                            {point?.note ?
-                                                <>
-                                                    {point.note}
-                                                </> : ""}
+                                            {point?.note && (
+                                                <div className="mt-3 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-3 rounded-md shadow-sm">
+                                                    <p className="text-sm whitespace-pre-line">
+                                                        {point.note}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
 
@@ -258,10 +263,13 @@ const FeedPage = () => {
                                                                 ))}
                                                             </div>
                                                         )}
-                                                        {point?.note ?
-                                                            <>
-                                                                {point.note}
-                                                            </> : ""}
+                                                        {point?.note && (
+                                                            <div className="mt-3 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-3 rounded-md shadow-sm">
+                                                                <p className="text-sm whitespace-pre-line">
+                                                                    {point.note}
+                                                                </p>
+                                                            </div>
+                                                        )}
                                                     </div>
 
                                                 ))}
