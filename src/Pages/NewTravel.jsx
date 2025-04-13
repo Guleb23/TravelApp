@@ -292,6 +292,11 @@ const HomePage = () => {
         const updatedPoints = await recalculateRoutes(newPoints);
         setPoints(updatedPoints);
     };
+    const updatePointNote = (index, note) => {
+        const newPoints = [...points];
+        newPoints[index].note = note;
+        setPoints(newPoints);
+    };
     //ВНИЗ
     const movePointDown = async (index) => {
         if (index === 0) {
@@ -1354,6 +1359,15 @@ const HomePage = () => {
                                                 <TimeCheckInfo point={point} />
                                             </div>
                                         )}
+                                        <div className='mt-3'>
+
+                                            <CustomInput
+                                                value={point.note || ''}
+                                                handleChange={(e) => updatePointNote(index, e.target.value)}
+                                                placeholder="Напишите заметку..."
+
+                                            />
+                                        </div>
                                         <button
                                             onClick={() => {
                                                 setSelectedPointIndex(index);
