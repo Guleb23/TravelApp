@@ -218,6 +218,10 @@ const FeedPage = () => {
                                                     ))}
                                                 </div>
                                             )}
+                                            {point?.note ?
+                                                <>
+                                                    {point.note}
+                                                </> : ""}
                                         </div>
                                     ))}
 
@@ -254,7 +258,12 @@ const FeedPage = () => {
                                                                 ))}
                                                             </div>
                                                         )}
+                                                        {point?.note ?
+                                                            <>
+                                                                {point.note}
+                                                            </> : ""}
                                                     </div>
+
                                                 ))}
                                             </motion.div>
                                         )}
