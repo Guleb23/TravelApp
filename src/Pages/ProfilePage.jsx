@@ -136,7 +136,9 @@ const FeedPage = () => {
                         ))}
                     </div>
                 </div>
-
+                <div className="text-sm text-gray-500 text-center mb-4">
+                    Страница {page} из {totalPages}
+                </div>
                 {/* Контент */}
                 {loading ? (
                     <div className="flex justify-center py-12">
@@ -186,46 +188,41 @@ const FeedPage = () => {
 
                                 {/* Точки маршрута */}
                                 <AnimatePresence initial={false}>
-                                    <motion.div
-                                        key={expandedPosts.has(post.id) ? 'expanded' : 'collapsed'}
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        transition={{ duration: 0.4, ease: 'easeInOut' }}
-                                        className="p-4 overflow-hidden"
-                                    >
-                                        {(expandedPosts.has(post.id) ? post.points : post.points.slice(0, 3)).map(point => (
-                                            <div key={point.id} className="mb-3 last:mb-0">
-                                                <div className="flex justify-between">
-                                                    <h3 className="font-medium text-gray-800">{point.name}</h3>
-                                                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                                        {point.type}
-                                                    </span>
-                                                </div>
-                                                {point.address && (
-                                                    <p className="text-sm text-gray-600">{point.address}</p>
-                                                )}
-                                                {point.photos && point.photos.length > 0 && (
-                                                    <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
-                                                        {point.photos.slice(0, 3).map(photo => (
-                                                            <img
-                                                                key={photo.id}
-                                                                src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
-                                                                alt={point.name}
-                                                                className="h-24 rounded-md object-cover shadow-sm"
-                                                            />
-                                                        ))}
+                                    {expandedPosts.has(post.id) && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }}
+                                            animate={{ opacity: 1, scaleY: 1 }}
+                                            exit={{ opacity: 0, scaleY: 0 }}
+                                            transition={{ duration: 0.4, ease: 'easeInOut' }}
+                                            className="p-4 overflow-hidden origin-top"
+                                        >
+                                            {post.points.map(point => (
+                                                <div key={point.id} className="mb-3 last:mb-0">
+                                                    <div className="flex justify-between">
+                                                        <h3 className="font-medium text-gray-800">{point.name}</h3>
+                                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                            {point.type}
+                                                        </span>
                                                     </div>
-                                                )}
-                                            </div>
-                                        ))}
-
-                                        {!expandedPosts.has(post.id) && post.points.length > 3 && (
-                                            <p className="text-sm text-gray-500 mt-2">
-                                                + еще {post.points.length - 3} точек маршрута...
-                                            </p>
-                                        )}
-                                    </motion.div>
+                                                    {point.address && (
+                                                        <p className="text-sm text-gray-600">{point.address}</p>
+                                                    )}
+                                                    {point.photos && point.photos.length > 0 && (
+                                                        <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
+                                                            {point.photos.slice(0, 3).map(photo => (
+                                                                <img
+                                                                    key={photo.id}
+                                                                    src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
+                                                                    alt={point.name}
+                                                                    className="h-24 rounded-md object-cover shadow-sm"
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </motion.div>
+                                    )}
                                 </AnimatePresence>
 
                                 {/* Действия */}
@@ -263,48 +260,40 @@ const FeedPage = () => {
 
                 {/* Пагинация */}
                 {totalPages > 1 && (
-                    <div className="mt-8 flex justify-center">
-                        <nav className="inline-flex rounded-md shadow">
+                    <div className="mt-10 flex justify-center">
+                        <nav className="inline-flex items-center gap-1 rounded-md shadow-sm">
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                                className="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 disabled:opacity-40"
                             >
                                 Назад
                             </button>
 
-                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                let pageNum;
-                                if (totalPages <= 5) {
-                                    pageNum = i + 1;
-                                } else if (page <= 3) {
-                                    pageNum = i + 1;
-                                } else if (page >= totalPages - 2) {
-                                    pageNum = totalPages - 4 + i;
-                                } else {
-                                    pageNum = page - 2 + i;
-                                }
-
-                                return (
+                            {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                .filter(p => {
+                                    // Показываем только 5 страниц: текущую, 2 до и 2 после
+                                    return p === 1 || p === totalPages || (p >= page - 2 && p <= page + 2);
+                                })
+                                .map(p => (
                                     <button
-                                        key={pageNum}
-                                        onClick={() => setPage(pageNum)}
-                                        className={`px-3 py-2 border-t border-b border-gray-300 ${page === pageNum
-                                            ? 'bg-[#94a56f] text-white'
-                                            : 'bg-white text-gray-500 hover:bg-gray-50'
+                                        key={p}
+                                        onClick={() => setPage(p)}
+                                        className={`px-3 py-2 border border-gray-300 ${page === p
+                                            ? 'bg-[#94a56f] text-white font-semibold'
+                                            : 'bg-white text-gray-700 hover:bg-gray-100'
                                             }`}
                                     >
-                                        {pageNum}
+                                        {p}
                                     </button>
-                                );
-                            })}
+                                ))}
 
                             <button
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
-                                className="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                                className="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 disabled:opacity-40"
                             >
-                                Вперед
+                                Вперёд
                             </button>
                         </nav>
                     </div>
