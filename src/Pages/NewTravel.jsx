@@ -137,6 +137,7 @@ const HomePage = () => {
                         type: point.type || 'attraction',
                         departureTime: index === 0 ? point.departureTime || '08:00' : undefined,
                         coordinates: point.coordinates,
+                        note: point.note,
                         photos: point.photos?.map(photo => ({
                             id: photo.id || 0,
                             fileName: photo.file?.name || photo.filePath?.split('/').pop() || `photo_${Date.now()}`,
