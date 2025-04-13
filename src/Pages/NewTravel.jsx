@@ -175,6 +175,7 @@ const HomePage = () => {
                 setTitle(updatedTravel.title);
                 setDateState(formatDate(new Date(updatedTravel.date)));
                 setPoints(updatedPoints);
+                console.log(updatedPoints);
 
 
                 showCustomToast({
