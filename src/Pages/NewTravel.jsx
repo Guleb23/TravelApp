@@ -1362,10 +1362,9 @@ const HomePage = () => {
                                         <div className='mt-3'>
 
                                             <CustomInput
-                                                value={point.note || ''}
+                                                value={point?.note || ''}  // Добавьте проверку на существование point
                                                 handleChange={(e) => updatePointNote(index, e.target.value)}
                                                 placeholder="Напишите заметку..."
-
                                             />
                                         </div>
                                         <button
