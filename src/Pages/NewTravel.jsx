@@ -292,11 +292,6 @@ const HomePage = () => {
         const updatedPoints = await recalculateRoutes(newPoints);
         setPoints(updatedPoints);
     };
-    const updatePointNote = (index, note) => {
-        const newPoints = [...points];
-        newPoints[index].note = note;
-        setPoints(newPoints);
-    };
     //ВНИЗ
     const movePointDown = async (index) => {
         if (index === 0) {
@@ -426,7 +421,11 @@ const HomePage = () => {
 
         setPoints(updatedPoints);
     };
-
+    const updatePointNote = (index, note) => {
+        const newPoints = [...points];
+        newPoints[index].note = note;
+        setPoints(newPoints);
+    };
     // Вспомогательная функция для конвертации File в base64
     const convertFileToBase64 = (file) => {
         return new Promise((resolve, reject) => {
@@ -1360,11 +1359,12 @@ const HomePage = () => {
                                             </div>
                                         )}
                                         <div className='mt-3'>
-
-                                            <CustomInput
-                                                value={point?.note || ''}  // Добавьте проверку на существование point
-                                                handleChange={(e) => updatePointNote(index, e.target.value)}
+                                            <label className='block mb-1'>Заметка:</label>
+                                            <textarea
+                                                value={point.note || ''}
+                                                onChange={(e) => updatePointNote(index, e.target.value)}
                                                 placeholder="Напишите заметку..."
+                                                className='w-full p-2 border rounded'
                                             />
                                         </div>
                                         <button
