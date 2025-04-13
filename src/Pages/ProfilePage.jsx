@@ -58,6 +58,11 @@ const FeedPage = () => {
             return newSet;
         });
     };
+    const handleShare = (postId) => {
+        setCurrentPostId(postId); // Устанавливаем текущий пост
+        setIsShareModalOpen(true); // Открываем модалку
+    };
+
     // Функция для закрытия модалки
     const closeShareModal = () => {
         setIsShareModalOpen(false);
@@ -92,29 +97,6 @@ const FeedPage = () => {
         setPage(1);
     };
 
-    const handleLike = async (postId) => {
-        try {
-            if (likedPosts.has(postId)) {
-                await axios.delete(`https://guleb23-apifortravel-a985.twc1.net/api/posts/${postId}/like`);
-                setLikedPosts(prev => {
-                    const newSet = new Set(prev);
-                    newSet.delete(postId);
-                    return newSet;
-                });
-            } else {
-                await axios.post(`https://guleb23-apifortravel-a985.twc1.net/api/posts/${postId}/like`);
-                setLikedPosts(prev => new Set(prev).add(postId));
-            }
-        } catch (error) {
-            console.error('Error toggling like:', error);
-        }
-    };
-
-    const handleShare = (postId) => {
-        console.log('Sharing post:', postId);
-        navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
-        alert('Ссылка скопирована в буфер обмена!');
-    };
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -288,17 +270,6 @@ const FeedPage = () => {
 
                                 {/* Действия */}
                                 <div className="p-3 bg-gray-50 flex justify-between items-center">
-                                    <button
-                                        onClick={() => handleLike(post.id)}
-                                        className="flex items-center text-gray-500 hover:text-red-500"
-                                    >
-                                        {likedPosts.has(post.id) ? (
-                                            <FaHeart className="text-red-500 mr-1" />
-                                        ) : (
-                                            <FaRegHeart className="mr-1" />
-                                        )}
-                                        <span>Нравится</span>
-                                    </button>
 
                                     <button
                                         onClick={() => handleShare(post.id)}
