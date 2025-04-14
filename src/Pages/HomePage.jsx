@@ -81,15 +81,9 @@ const HomePage = () => {
     };
     // Загрузка данных о путешествиях
     useEffect(() => {
+
         fetchTravels();
     }, [user?.id, location.key]); // Добавляем user в зависимости useEffect
-    // Подписка на навигацию (если нужно)
-    useEffect(() => {
-        const unlisten = navigate.listen(() => {
-            fetchTravels();
-        });
-        return () => unlisten();
-    }, []);
     // Преобразование данных для FullCalendar
     const calendarEvents = travels.map(travel => ({
         title: travel.title,
