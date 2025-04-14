@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import '@fullcalendar/common/main.css';
 import CustomBtn from '../Components/CustomBtn';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { FaCalendarDays } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import { FaShare } from "react-icons/fa";
@@ -23,7 +23,7 @@ const HomePage = () => {
     const navigate = useNavigate();//Хук навигации
     const [showShareModal, setShowShareModal] = useState(false);//пОКАЗАТЬ/СКРЫТЬ МОДАЛЬНОЕ ОКНО
     const [selectedTravelId, setSelectedTravelId] = useState(null);//Id выбранного маршрута
-
+    const location = useLocation();
 
     //Открытие модального окна
     const handleShareClick = (travelId) => {
@@ -82,7 +82,7 @@ const HomePage = () => {
     // Загрузка данных о путешествиях
     useEffect(() => {
         fetchTravels();
-    }, [user]); // Добавляем user в зависимости useEffect
+    }, [user?.id, location.key]); // Добавляем user в зависимости useEffect
 
     // Преобразование данных для FullCalendar
     const calendarEvents = travels.map(travel => ({
@@ -119,7 +119,7 @@ const HomePage = () => {
     //Редирект на страниу создания путешествия
     const handleBtnClick = () => {
         if (selectedDate) {
-            navigate('/profile', { state: { date: selectedDate, onTravelCreated: fetchTravels } });
+            navigate('/profile', { state: { date: selectedDate } });
         }
     };
 

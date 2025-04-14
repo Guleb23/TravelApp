@@ -50,7 +50,7 @@ const HomePage = () => {
     const mapRef = useRef(null);//Реф карты
     const markersRef = useRef([]);//Реф маркеров
     const location = useLocation();//Для получения даты из календаря
-    const { date, onTravelCreated } = location.state || {};//Сама дата
+    const { date } = location.state || {};//Сама дата
     const [title, setTitle] = useState();//Название путешествия
     const [dateState, setDateState] = useState(date);//Сама дата
     const [showModal, setShowModal] = useState(false);//Показать\скрыть модальное окно
@@ -355,11 +355,7 @@ const HomePage = () => {
                 title: 'Маршрут сохранен!',
                 message: 'Удачного пути!'
             });
-            if (onTravelCreated) {
-                onTravelCreated();
-            }
-            navigator('/news');
-
+            navigator('/news')
         } catch (err) {
             console.error('Ошибка:', err);
             toast.error(`Не удалось сохранить: ${err.message}`);
