@@ -344,7 +344,7 @@ const HomePage = () => {
             const payload = {
                 title,
                 date: dateState,
-                points: points.filter(p => p.name.trim() !== ""), // Фильтруем пустые точки
+                points: points
             };
             console.log(payload);
             axios.post(`https://guleb23-apifortravel-a985.twc1.net/api/users/${user.id}/travels`, payload);
