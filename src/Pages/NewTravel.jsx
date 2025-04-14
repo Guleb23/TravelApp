@@ -38,7 +38,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const HomePage = () => {
-    const { id } = useParams();
+    const { id, func } = useParams();
     const { user } = useAuth();
     const [originalPoints, setOriginalPoints] = useState([]); // Добавляем состояние для исходного массива
     const [selectedPointIndex, setSelectedPointIndex] = useState(null);//Для загрузки фото
@@ -356,7 +356,7 @@ const HomePage = () => {
                 message: 'Удачного пути!'
             });
             navigator('/news')
-            fetchTravels();
+            func();
         } catch (err) {
             console.error('Ошибка:', err);
             toast.error(`Не удалось сохранить: ${err.message}`);

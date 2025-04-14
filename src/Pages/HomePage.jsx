@@ -62,27 +62,25 @@ const HomePage = () => {
             .split('T')[0];
     };
 
+    const fetchTravels = async () => {
+        try {
+            // Проверяем, что user и user.id доступны
+            if (!user?.id) {
+                setLoading(false);
+                return;
+            }
+
+            const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${user.id}`);
+            setTravels(response.data);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+            console.error('Ошибка при загрузке путешествий:', err);
+        }
+    };
     // Загрузка данных о путешествиях
     useEffect(() => {
-
-        const fetchTravels = async () => {
-            try {
-                // Проверяем, что user и user.id доступны
-                if (!user?.id) {
-                    setLoading(false);
-                    return;
-                }
-
-                const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${user.id}`);
-                setTravels(response.data);
-                setLoading(false);
-            } catch (err) {
-                setError(err.message);
-                setLoading(false);
-                console.error('Ошибка при загрузке путешествий:', err);
-            }
-        };
-
         fetchTravels();
     }, [user]); // Добавляем user в зависимости useEffect
 
@@ -121,7 +119,7 @@ const HomePage = () => {
     //Редирект на страниу создания путешествия
     const handleBtnClick = () => {
         if (selectedDate) {
-            navigate('/profile', { state: { date: selectedDate } });
+            navigate('/profile', { state: { date: selectedDate, fucn: fetchTravels } });
         }
     };
 
