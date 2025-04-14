@@ -217,6 +217,39 @@ const HomePage = () => {
             };
         }));
     };
+    const fetchTravels = async () => {
+        try {
+            const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/points/${id}`);
+            console.log(response.data);
+
+            // Преобразуем пути к фото в полные URL
+            const pointsWithPhotos = await Promise.all(
+                response.data.map(async point => ({
+                    ...point,
+                    photos: point.photos
+                        ? await Promise.all(point.photos.map(async photo => {
+                            // Формируем полный URL до изображения
+                            const imageUrl = `https://guleb23-apifortravel-a985.twc1.net/${photo.filePath.replace(/\\/g, '/')}`;
+                            return {
+                                id: photo.id,
+                                filePath: photo.filePath,
+                                preview: imageUrl, // Используем прямой URL
+                                Base64Content: null // Можно заполнить при необходимости
+                            };
+                        }))
+                        : []
+                }))
+            );
+
+            setPoints(pointsWithPhotos);
+            const pointsWithRoutes = await recalculateAllRoutes(pointsWithPhotos);
+            setPoints(pointsWithRoutes);
+            setOriginalPoints([...pointsWithPhotos]); // Сохраняем исходный массив
+
+        } catch (err) {
+            console.error('Ошибка при загрузке:', err);
+        }
+    };
     // Загрузка данных о путешествиях
     useEffect(() => {
         if (id) {
@@ -234,39 +267,7 @@ const HomePage = () => {
             }
 
             fetchData();
-            const fetchTravels = async () => {
-                try {
-                    const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/points/${id}`);
-                    console.log(response.data);
 
-                    // Преобразуем пути к фото в полные URL
-                    const pointsWithPhotos = await Promise.all(
-                        response.data.map(async point => ({
-                            ...point,
-                            photos: point.photos
-                                ? await Promise.all(point.photos.map(async photo => {
-                                    // Формируем полный URL до изображения
-                                    const imageUrl = `https://guleb23-apifortravel-a985.twc1.net/${photo.filePath.replace(/\\/g, '/')}`;
-                                    return {
-                                        id: photo.id,
-                                        filePath: photo.filePath,
-                                        preview: imageUrl, // Используем прямой URL
-                                        Base64Content: null // Можно заполнить при необходимости
-                                    };
-                                }))
-                                : []
-                        }))
-                    );
-
-                    setPoints(pointsWithPhotos);
-                    const pointsWithRoutes = await recalculateAllRoutes(pointsWithPhotos);
-                    setPoints(pointsWithRoutes);
-                    setOriginalPoints([...pointsWithPhotos]); // Сохраняем исходный массив
-
-                } catch (err) {
-                    console.error('Ошибка при загрузке:', err);
-                }
-            };
 
             fetchTravels();
         }
@@ -355,7 +356,7 @@ const HomePage = () => {
                 message: 'Удачного пути!'
             });
             navigator('/news')
-
+            fetchTravels();
         } catch (err) {
             console.error('Ошибка:', err);
             toast.error(`Не удалось сохранить: ${err.message}`);
@@ -748,6 +749,7 @@ const HomePage = () => {
                 arrivalTime: null,
                 duration: null,
                 type: "attraction",
+                note: "",
                 photos: [],
                 osmData: {
                     opening_hours: details.opening_hours || selectedSuggestion.opening_hours,
