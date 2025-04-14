@@ -81,9 +81,13 @@ const HomePage = () => {
     };
     // Загрузка данных о путешествиях
     useEffect(() => {
-
+        if (location.state?.reloadTravels) {
+            fetchTravels();
+            // сбрасываем state, чтобы не зациклилось
+            navigate(location.pathname, { replace: true, state: {} });
+        }
         fetchTravels();
-    }, [user?.id, location.key]); // Добавляем user в зависимости useEffect
+    }, [location.state]); // Добавляем user в зависимости useEffect
     // Преобразование данных для FullCalendar
     const calendarEvents = travels.map(travel => ({
         title: travel.title,

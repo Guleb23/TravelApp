@@ -355,7 +355,7 @@ const HomePage = () => {
                 title: 'Маршрут сохранен!',
                 message: 'Удачного пути!'
             });
-            navigator('/news')
+            navigator('/news', { state: { reloadTravels: true } })
         } catch (err) {
             console.error('Ошибка:', err);
             toast.error(`Не удалось сохранить: ${err.message}`);
