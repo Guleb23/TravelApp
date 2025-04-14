@@ -356,7 +356,6 @@ const HomePage = () => {
                 message: 'Удачного пути!'
             });
             navigator('/news')
-            window.location.reload();
         } catch (err) {
             console.error('Ошибка:', err);
             toast.error(`Не удалось сохранить: ${err.message}`);
