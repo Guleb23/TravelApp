@@ -38,7 +38,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const HomePage = () => {
-    const { id, func } = useParams();
+    const { id } = useParams();
     const { user } = useAuth();
     const [originalPoints, setOriginalPoints] = useState([]); // Добавляем состояние для исходного массива
     const [selectedPointIndex, setSelectedPointIndex] = useState(null);//Для загрузки фото
@@ -50,7 +50,7 @@ const HomePage = () => {
     const mapRef = useRef(null);//Реф карты
     const markersRef = useRef([]);//Реф маркеров
     const location = useLocation();//Для получения даты из календаря
-    const { date } = location.state || {};//Сама дата
+    const { date, onTravelCreated } = location.state || {};//Сама дата
     const [title, setTitle] = useState();//Название путешествия
     const [dateState, setDateState] = useState(date);//Сама дата
     const [showModal, setShowModal] = useState(false);//Показать\скрыть модальное окно
@@ -355,8 +355,11 @@ const HomePage = () => {
                 title: 'Маршрут сохранен!',
                 message: 'Удачного пути!'
             });
-            navigator('/news')
-            func();
+            if (onTravelCreated) {
+                onTravelCreated();
+            }
+            navigator('/news');
+
         } catch (err) {
             console.error('Ошибка:', err);
             toast.error(`Не удалось сохранить: ${err.message}`);

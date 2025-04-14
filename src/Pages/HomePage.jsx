@@ -119,7 +119,7 @@ const HomePage = () => {
     //Редирект на страниу создания путешествия
     const handleBtnClick = () => {
         if (selectedDate) {
-            navigate('/profile', { state: { date: selectedDate, fucn: fetchTravels } });
+            navigate('/profile', { state: { date: selectedDate, onTravelCreated: fetchTravels } });
         }
     };
 
