@@ -121,18 +121,9 @@ const FeedPage = () => {
         setPage(1);
     };
 
-    {
-        isSlideshowOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50" onClick={closeSlideshow}>
-                <img
-                    src={`https://guleb23-apifortravel-a985.twc1.net/${slideshowPhotos[currentSlide]?.filePath}`}
-                    alt="Слайд"
-                    className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-                />
-            </div>
-        )
-    }
+
     return (
+
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
                 {/* Заголовок и поиск */}
@@ -417,8 +408,21 @@ const FeedPage = () => {
                     </div>
                 </div>
             )}
+            {
+                isSlideshowOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50" onClick={closeSlideshow}>
+                        <img
+                            src={`https://guleb23-apifortravel-a985.twc1.net/${slideshowPhotos[currentSlide]?.filePath}`}
+                            alt="Слайд"
+                            className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                        />
+                    </div>
+                )
+            }
         </div>
+
     );
+
 };
 
 export default FeedPage;
