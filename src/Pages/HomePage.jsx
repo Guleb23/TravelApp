@@ -21,6 +21,7 @@ const HomePage = () => {
     const [travels, setTravels] = useState([]);//Список путешествий
     const [loading, setLoading] = useState(true);//Состояние загрузки
     const [error, setError] = useState(null);//Состояние ошибок
+    const [tags, setTags] = useState([]);
     const navigate = useNavigate();//Хук навигации
     const [showShareModal, setShowShareModal] = useState(false);//пОКАЗАТЬ/СКРЫТЬ МОДАЛЬНОЕ ОКНО
     const [selectedTravelId, setSelectedTravelId] = useState(null);//Id выбранного маршрута
@@ -191,7 +192,7 @@ const HomePage = () => {
                             <div className='w-16 flex flex-col gap-2'>
                                 <CustomBtn
                                     customStyles={`!bg-red-500`}
-                                    icon={<MdDelete size={20} color='white' />}
+                                    icon={<MdDelete size={14} color='white' />}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleDelete(travel.id);
@@ -199,20 +200,22 @@ const HomePage = () => {
                                 />
                                 <CustomBtn
                                     customStyles={`!bg-[#94a56f]`}
-                                    icon={<FaShare size={20} color='white' />}
+                                    icon={<FaShare size={14} color='white' />}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleShareClick(travel.id);
                                     }}
                                 />
-                                <CustomBtn
-                                    customStyles={`!bg-[#94a56f]`}
-                                    icon={<MdVisibilityOff size={20} color='white' />}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        hundleUnshare(travel.id);
-                                    }}
-                                />
+                                {travel.tags && travel.tags.length > 0 && (
+                                    <CustomBtn
+                                        customStyles={`!bg-[#94a56f]`}
+                                        icon={<MdVisibilityOff size={14} color='white' />}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            hundleUnshare(travel.id);
+                                        }}
+                                    />
+                                )}
                             </div>
                         </div>
                     );
