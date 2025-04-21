@@ -68,9 +68,20 @@ const FeedPage = () => {
         setCurrentPostId(postId); // Устанавливаем текущий пост
         setIsShareModalOpen(true); // Открываем модалку
     };
-    const openSlideshow = (photos) => {
-        setSlideshowPhotos(photos);
-        setCurrentSlide(0);
+    const openSlideshow = (travel, pointId, photoIndex) => {
+        // Собираем все фото из всех точек
+        const allPhotos = travel.points.flatMap(point => point.photos);
+
+        // Находим индекс нужного фото в общем массиве
+        const currentIndex = allPhotos.findIndex(
+            (photo) => {
+                const point = travel.points.find(p => p.photos.includes(photo));
+                return point?.id === pointId && point.photos.indexOf(photo) === photoIndex;
+            }
+        );
+
+        setSlideshowPhotos(allPhotos);
+        setCurrentSlide(currentIndex >= 0 ? currentIndex : 0);
         setIsSlideshowOpen(true);
     };
 
@@ -240,7 +251,7 @@ const FeedPage = () => {
                                                             src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
                                                             alt={point.name}
                                                             className="h-24 rounded-md object-cover shadow-sm cursor-pointer"
-                                                            onClick={() => openSlideshow(point.photos)}
+                                                            onClick={() => openSlideshow(travel, point.id, index)}
                                                         />
                                                     ))}
                                                 </div>
@@ -284,6 +295,7 @@ const FeedPage = () => {
                                                                         src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
                                                                         alt={point.name}
                                                                         className="h-24 rounded-md object-cover shadow-sm"
+                                                                        onClick={() => openSlideshow(travel, point.id, index)}
                                                                     />
                                                                 ))}
                                                             </div>
