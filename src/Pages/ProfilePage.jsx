@@ -14,6 +14,9 @@ const FeedPage = () => {
     const [expandedPosts, setExpandedPosts] = useState(new Set());
     const [isShareModalOpen, setIsShareModalOpen] = useState(false); // Состояние для открытия модалки
     const [currentPostId, setCurrentPostId] = useState(null); // Состояние для текущего поста
+    const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
+    const [slideshowPhotos, setSlideshowPhotos] = useState([]);
+    const [currentSlide, setCurrentSlide] = useState(0);
     // Загрузка данных
     useEffect(() => {
         const fetchData = async () => {
@@ -64,7 +67,26 @@ const FeedPage = () => {
         setCurrentPostId(postId); // Устанавливаем текущий пост
         setIsShareModalOpen(true); // Открываем модалку
     };
+    const openSlideshow = (photos) => {
+        setSlideshowPhotos(photos);
+        setCurrentSlide(0);
+        setIsSlideshowOpen(true);
+    };
 
+    const closeSlideshow = () => {
+        setIsSlideshowOpen(false);
+        setSlideshowPhotos([]);
+    };
+    useEffect(() => {
+        let timer;
+        if (isSlideshowOpen) {
+            timer = setInterval(() => {
+                setCurrentSlide(prev => (prev + 1) % slideshowPhotos.length);
+            }, 3000); // 3 секунды
+        }
+
+        return () => clearInterval(timer);
+    }, [isSlideshowOpen, slideshowPhotos]);
     // Функция для закрытия модалки
     const closeShareModal = () => {
         setIsShareModalOpen(false);
@@ -99,7 +121,17 @@ const FeedPage = () => {
         setPage(1);
     };
 
-
+    {
+        isSlideshowOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50" onClick={closeSlideshow}>
+                <img
+                    src={`https://guleb23-apifortravel-a985.twc1.net/${slideshowPhotos[currentSlide]?.filePath}`}
+                    alt="Слайд"
+                    className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                />
+            </div>
+        )
+    }
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
@@ -215,7 +247,8 @@ const FeedPage = () => {
                                                             key={photo.id}
                                                             src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
                                                             alt={point.name}
-                                                            className="h-24 rounded-md object-cover shadow-sm"
+                                                            className="h-24 rounded-md object-cover shadow-sm cursor-pointer"
+                                                            onClick={() => openSlideshow(point.photos)}
                                                         />
                                                     ))}
                                                 </div>
