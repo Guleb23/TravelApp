@@ -194,7 +194,7 @@ const FeedPage = () => {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {feed.map(post => (
+                        {feed.map((post, index) => (
                             <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                                 {/* Заголовок */}
                                 <div className="p-4 border-b border-gray-200">
@@ -251,7 +251,7 @@ const FeedPage = () => {
                                                             src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
                                                             alt={point.name}
                                                             className="h-24 rounded-md object-cover shadow-sm cursor-pointer"
-                                                            onClick={() => openSlideshow(travel, point.id, index)}
+                                                            onClick={() => openSlideshow(post, point.id, index)}
                                                         />
                                                     ))}
                                                 </div>
@@ -295,7 +295,7 @@ const FeedPage = () => {
                                                                         src={`https://guleb23-apifortravel-a985.twc1.net/${photo.filePath}`}
                                                                         alt={point.name}
                                                                         className="h-24 rounded-md object-cover shadow-sm"
-                                                                        onClick={() => openSlideshow(travel, point.id, index)}
+                                                                        onClick={() => openSlideshow(post, point.id, index)}
                                                                     />
                                                                 ))}
                                                             </div>
