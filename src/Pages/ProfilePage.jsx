@@ -232,7 +232,7 @@ const FeedPage = () => {
 
                                 <div className="p-4 overflow-hidden">
                                     {/* Первые 3 точки — всегда видимы */}
-                                    {post.points.slice(0, 3).map(point => (
+                                    {post.points.slice(0, 3).map((point, index) => (
                                         <div key={point.id} className="mb-3 last:mb-0">
                                             <div className="flex justify-between">
                                                 <h3 className="font-medium text-gray-800">{point.name}</h3>
@@ -276,7 +276,7 @@ const FeedPage = () => {
                                                 transition={{ duration: 0.4, ease: 'easeInOut' }}
                                                 className="mt-3 origin-top"
                                             >
-                                                {post.points.slice(3).map(point => (
+                                                {post.points.slice(3).map((point, index) => (
                                                     <div key={point.id} className="mb-3 last:mb-0">
                                                         <div className="flex justify-between">
                                                             <h3 className="font-medium text-gray-800">{point.name}</h3>
