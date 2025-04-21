@@ -3,6 +3,7 @@ import { FaSearch, FaShare, FaHeart, FaRegHeart, FaCalendarAlt, FaFacebook, FaTw
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import SlideshowModal from '../Components/SlideShowModal';
+import { FaVk } from 'react-icons/fa';
 const FeedPage = () => {
     const [feed, setFeed] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -100,17 +101,16 @@ const FeedPage = () => {
         let shareUrl = '';
         const postUrl = `${window.location.origin}/post/${currentPostId}`;
 
-        if (network === 'facebook') {
-            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`;
+        if (network === 'vk') {
+            shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(postUrl)}`;
         } else if (network === 'twitter') {
             shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}`;
         } else if (network === 'telegram') {
             shareUrl = `https://t.me/share/url?url=${encodeURIComponent(postUrl)}`;
         }
 
-        // Открываем ссылку для соцсети в новом окне
         window.open(shareUrl, '_blank');
-        closeShareModal(); // Закрываем модалку
+        closeShareModal();
     };
     // Обработчики событий
     const handleSearch = (e) => {
@@ -381,11 +381,11 @@ const FeedPage = () => {
                         <h3 className="text-xl mb-4">Поделиться в соцсетях</h3>
                         <div className="flex gap-4">
                             <button
-                                onClick={() => handleSocialShare('facebook')}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-full flex items-center"
+                                onClick={() => handleSocialShare('vk')}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-full flex items-center"
                             >
-                                <FaFacebook className="mr-2" />
-                                Facebook
+                                <FaVk className="mr-2" />
+                                ВКонтакте
                             </button>
                             <button
                                 onClick={() => handleSocialShare('twitter')}
