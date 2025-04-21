@@ -48,7 +48,7 @@ const SlideshowModal = ({ photos, isOpen, onClose, currentSlide, setCurrentSlide
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-90"
                         >
-                            <DialogPanel className="relative w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                            <DialogPanel className="relative w-full max-w-5xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                 <button
                                     onClick={onClose}
                                     className="absolute top-3 right-3 text-gray-600 hover:text-black"
@@ -56,29 +56,29 @@ const SlideshowModal = ({ photos, isOpen, onClose, currentSlide, setCurrentSlide
                                     <X size={24} />
                                 </button>
 
-                                <div className="flex items-center justify-center gap-4">
-                                    <button
-                                        onClick={prevSlide}
-                                        className="text-gray-700 hover:text-black transition"
-                                    >
-                                        <FaChevronLeft size={28} />
-                                    </button>
-
+                                <div className="relative w-full h-[70vh] flex items-center justify-center">
                                     <motion.img
                                         key={photos[currentSlide]?.filePath}
                                         src={`https://guleb23-apifortravel-a985.twc1.net/${photos[currentSlide]?.filePath}`}
                                         alt="Слайд"
-                                        className="max-h-[70vh] rounded-xl object-contain shadow-md"
+                                        className="max-h-full max-w-full object-contain rounded-xl shadow-md"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ duration: 0.4 }}
                                     />
 
                                     <button
-                                        onClick={nextSlide}
-                                        className="text-gray-700 hover:text-black transition"
+                                        onClick={prevSlide}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-700 p-2 rounded-full shadow transition"
                                     >
-                                        <FaChevronRight size={28} />
+                                        <FaChevronLeft size={24} />
+                                    </button>
+
+                                    <button
+                                        onClick={nextSlide}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-700 p-2 rounded-full shadow transition"
+                                    >
+                                        <FaChevronRight size={24} />
                                     </button>
                                 </div>
 
