@@ -41,6 +41,10 @@ const HomePage = () => {
                 type: 'success',
                 title: 'Вы удалили путешествие из ленты',
             });
+            if (user?.id) {
+                const response = await axios.get(`https://guleb23-apifortravel-a985.twc1.net/api/routes/${user.id}`);
+                setTravels(response.data);
+            }
         } catch (error) {
             console.error('Ошибка при скрытии:', error);
             toast.error('Произошла ошибка при скрытии');
