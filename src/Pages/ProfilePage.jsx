@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaSearch, FaShare, FaHeart, FaRegHeart, FaCalendarAlt, FaFacebook, FaTwitter, FaTelegram } from 'react-icons/fa';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import SlideshowModal from '../Components/SlideShowModal';
 const FeedPage = () => {
     const [feed, setFeed] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -408,17 +409,13 @@ const FeedPage = () => {
                     </div>
                 </div>
             )}
-            {
-                isSlideshowOpen && (
-                    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50" onClick={closeSlideshow}>
-                        <img
-                            src={`https://guleb23-apifortravel-a985.twc1.net/${slideshowPhotos[currentSlide]?.filePath}`}
-                            alt="Слайд"
-                            className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-                        />
-                    </div>
-                )
-            }
+            <SlideshowModal
+                photos={slideshowPhotos}
+                isOpen={isSlideshowOpen}
+                onClose={closeSlideshow}
+                currentSlide={currentSlide}
+                setCurrentSlide={setCurrentSlide}
+            />
         </div>
 
     );
