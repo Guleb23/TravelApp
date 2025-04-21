@@ -13,6 +13,7 @@ import { useAuth } from '../Context/AuthContext';
 import ShareModal from '../Components/ShareModal';
 import toast from 'react-hot-toast';
 import { showCustomToast } from "../Helpers/showCustomToast";
+import { MdVisibilityOff } from "react-icons/md";
 
 const HomePage = () => {
     const { user } = useAuth();//Получение данных о пользователе из AuthContext
@@ -31,7 +32,21 @@ const HomePage = () => {
         setShowShareModal(true);
     };
 
+    const hundleUnshare = async (travelId) => {
+        const tags = [];
+        try {
+            await axios.put(`https://guleb23-apifortravel-a985.twc1.net/api/travels/${travelId}/share`, { tags });
+            showCustomToast({
+                type: 'success',
+                title: 'Вы удалили путешествие из ленты',
+            });
+        } catch (error) {
+            console.error('Ошибка при скрытии:', error);
+            toast.error('Произошла ошибка при скрытии');
+        }
 
+
+    }
     //Запрос на изменение тега и пост в ленту
     const handleShareTravel = async (travelId, tags) => {
         try {
@@ -188,6 +203,14 @@ const HomePage = () => {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleShareClick(travel.id);
+                                    }}
+                                />
+                                <CustomBtn
+                                    customStyles={`!bg-[#94a56f]`}
+                                    icon={<MdVisibilityOff size={20} color='white' />}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        hundleUnshare(travel.id);
                                     }}
                                 />
                             </div>
