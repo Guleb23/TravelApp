@@ -1,6 +1,6 @@
 // components/SlideshowModal.jsx
 import React, { useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { X } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -25,7 +25,7 @@ const SlideshowModal = ({ photos, isOpen, onClose, currentSlide, setCurrentSlide
     return (
         <Transition appear show={isOpen} as={React.Fragment}>
             <Dialog as="div" className="relative z-50" onClose={onClose}>
-                <Transition.Child
+                <TransitionChild
                     as={React.Fragment}
                     enter="ease-out duration-300"
                     enterFrom="opacity-0"
@@ -35,11 +35,11 @@ const SlideshowModal = ({ photos, isOpen, onClose, currentSlide, setCurrentSlide
                     leaveTo="opacity-0"
                 >
                     <div className="fixed inset-0 bg-black/70" />
-                </Transition.Child>
+                </TransitionChild>
 
                 <div className="fixed inset-0 overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center">
-                        <Transition.Child
+                        <TransitionChild
                             as={React.Fragment}
                             enter="ease-out duration-300"
                             enterFrom="opacity-0 scale-90"
@@ -48,7 +48,7 @@ const SlideshowModal = ({ photos, isOpen, onClose, currentSlide, setCurrentSlide
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-90"
                         >
-                            <Dialog.Panel className="relative w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                            <DialogPanel className="relative w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                 <button
                                     onClick={onClose}
                                     className="absolute top-3 right-3 text-gray-600 hover:text-black"
@@ -85,8 +85,8 @@ const SlideshowModal = ({ photos, isOpen, onClose, currentSlide, setCurrentSlide
                                 <div className="mt-4 text-center text-sm text-gray-500">
                                     {currentSlide + 1} / {photos.length}
                                 </div>
-                            </Dialog.Panel>
-                        </Transition.Child>
+                            </DialogPanel>
+                        </TransitionChild>
                     </div>
                 </div>
             </Dialog>

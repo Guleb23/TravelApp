@@ -89,16 +89,6 @@ const FeedPage = () => {
         setIsSlideshowOpen(false);
         setSlideshowPhotos([]);
     };
-    useEffect(() => {
-        let timer;
-        if (isSlideshowOpen) {
-            timer = setInterval(() => {
-                setCurrentSlide(prev => (prev + 1) % slideshowPhotos.length);
-            }, 3000); // 3 секунды
-        }
-
-        return () => clearInterval(timer);
-    }, [isSlideshowOpen, slideshowPhotos]);
     // Функция для закрытия модалки
     const closeShareModal = () => {
         setIsShareModalOpen(false);
