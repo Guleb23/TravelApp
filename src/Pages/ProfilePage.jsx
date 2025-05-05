@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaShare, FaHeart, FaRegHeart, FaCalendarAlt, FaFacebook, FaTwitter, FaTelegram } from 'react-icons/fa';
+import { FaSearch, FaShare, FaHeart, FaRegHeart, FaCalendarAlt, FaWhatsapp, FaTwitter, FaTelegram } from 'react-icons/fa';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import SlideshowModal from '../Components/SlideShowModal';
@@ -105,8 +105,8 @@ const FeedPage = () => {
             shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(postUrl)}`;
         } else if (network === 'twitter') {
             shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}`;
-        } else if (network === 'telegram') {
-            shareUrl = `https://t.me/share/url?url=${encodeURIComponent(postUrl)}`;
+        } else if (network === 'whatsapp') {
+            shareUrl = `https://wa.me/?text=${encodeURIComponent(postUrl)}`;
         }
 
         window.open(shareUrl, '_blank');
@@ -388,11 +388,11 @@ const FeedPage = () => {
                                 ВКонтакте
                             </button>
                             <button
-                                onClick={() => handleSocialShare('twitter')}
+                                onClick={() => handleSocialShare('whatsapp')}
                                 className="px-4 py-2 bg-blue-400 text-white rounded-full flex items-center"
                             >
-                                <FaTwitter className="mr-2" />
-                                Twitter
+                                <FaWhatsapp className="mr-2" />
+                                WhatsApp
                             </button>
                             <button
                                 onClick={() => handleSocialShare('telegram')}
