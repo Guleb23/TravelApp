@@ -389,7 +389,7 @@ const FeedPage = () => {
                             </button>
                             <button
                                 onClick={() => handleSocialShare('whatsapp')}
-                                className="px-4 py-2 bg-blue-400 text-white rounded-full flex items-center"
+                                className="px-4 py-2 bg-green-400 text-white rounded-full flex items-center"
                             >
                                 <FaWhatsapp className="mr-2" />
                                 WhatsApp
